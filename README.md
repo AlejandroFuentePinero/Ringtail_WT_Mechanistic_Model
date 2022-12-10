@@ -51,6 +51,10 @@ This folder contains the data used for the models.
    - "_side_" fur region.
    - "_position_" position within the fur region where the measurements were taken (see figure below).
 
+- File "Copy of Ellipsoid model_heatstress3_green ringtails.xls" contains the biophysical model for green ringtail possums in Excel. Usefull to explore the sensitivity of the analysis to a change of especific parameters.
+
+
+
 
 <p align="center">
   <img src="https://github.com/AlejandroFuentePinero/Ringtail_WT_Mechanistic_Model/blob/main/pics/fur_depth_position.png" alt="Green Ringtail Possum's fur measurements."/>
@@ -59,8 +63,6 @@ Caption: Green Ringtail Possum (_Pseudochirops archeri_) fur. Circles indicate t
 Credits: Alejandro de la Fuente.
 
 
-
-- File "Copy of Ellipsoid model_heatstress3_green ringtails.xls" contains the biophysical model for green ringtail possums in Excel. Usefull to explore the sensitivity of the analysis to a change of especific parameters.
 
 ### Folder - **data_input**
 This folder contains the dataset in ".csv" format for their inputation in R.
