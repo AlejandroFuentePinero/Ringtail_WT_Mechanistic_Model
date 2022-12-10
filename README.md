@@ -51,7 +51,7 @@ This folder contains the data used for the models.
 
 
 ![Green Ringtail Possum fur](https://github.com/AlejandroFuentePinero/Ringtail_WT_Mechanistic_Model/blob/main/pics/fur_depth_position.png)
-Caption: Green Ringtail Possum (_Pseudochirops archeri_) fur. Circles indicate the position of the fur where the different measurements of fur depth were taken (see file "fur_depth_grtp.xlsx"). 
+Caption: Green Ringtail Possum (_Pseudochirops archeri_) fur. Circles indicate the position of the fur where the different measurements of fur depth were taken (see file "fur_depth_grtp.xlsx").
 Credits: Alejandro de la Fuente.
 
 
