@@ -11,6 +11,8 @@ Credits: Supalak Siri.
 ## Folder - **Data**
 This folder contains the data used for the models.
 
+- File "Fur metadata.docx" documents in detail how the fur data was collected (the part collected by Alejandro de la Fuente). Describes the methodology followed to measure different morphological properties of the possum fur.
+
 - File "fur_dataset_clean.xlsx" contains the summary values of green ringtail possum's fur properties.
   - "_dataset_" defines the overall dataset to which the value belongs to.
   - "_var_" provides a generic name for the variable.
@@ -73,8 +75,11 @@ This folder contains the dataset in ".csv" format for their inputation in R.
 
 - File "fur_dataset.csv" is is a duplicate of the file "fur_dataset_clean.xlsx" described above but in ".csv" format for its inputation in R. 
 
-- File "chamber_grtp.csv" contains the results from the chamber experiment for green ringtail possums led by Andrew Krockenberger; (Krokenberger et al. 2012, Oecologia.)[https://link.springer.com/article/10.1007/s00442-011-2146-2]
+- File "chamber_grtp.csv" contains the results from the chamber experiment for green ringtail possums led by Andrew Krockenberger; [Krokenberger et al. 2012. Oecologia](https://link.springer.com/article/10.1007/s00442-011-2146-2).
 
+## Folder - **Scripts**
+This folder contains the R scripts created for the different analyses, tests, and simulations.
 
+- File "thermal_conductance.R" calculates the observed and predicted fur thermal conductance for green ringtail possums. The observed conductance is calculated using the data provided in the file "fur_insulation_clean.csv" and it tests different assumptions about the influence of fur depth on the calculation, also exploring the potential measurement error. The predicted conductance is simulated within NicheMapR, calling the IRPROP subrutine. We test here the influence of ambient temperature, skin temperature, and fur tip temperature in the estimation of thermal conductance. The for loopm created here allows testing different assumptions and the sensitivity of the estimations. A final comparison between observed and predicted is produced.
   
 
