@@ -84,4 +84,8 @@ This folder contains the R scripts created for the different analyses, tests, an
 
 - File "Endotherm_component_tutorial.R" follows the original tutorial created by Michael Kearney but using the fur properties of the green ringtail possum to assess the basic function of the different routines within the NicheMapR package.
   
+## Folder - **Results**
+This folder contains the main results from the analyses.
 
+### Folder - **thermal_conductance_results**
+This folder contains the results from the thermal conductance simulation (file "thermal_conductance.R"). The plots in this folder represent the main results using the different fur depth assumptions testes (no error, 100% error, and constant depth across pelts).
