@@ -8,7 +8,7 @@ Credits: Supalak Siri.
 
 
 
-## Folder - Data
+## Folder - **Data**
 This folder contains the data used for the models.
 
 - File "fur_dataset_clean.xlsx" contains the summary values of green ringtail possum's fur properties.
@@ -42,7 +42,7 @@ This folder contains the data used for the models.
   - "_Fur tip temp (deg C)_"
   - "_Air temp (deg C)/Ta_" measured 2 cm above the fur (information coming from Johan Larson).
   
- - File "fur_depth_grtp.xlsx" contains the depth measurements for several positions within the 7 pelts of green ringtail possums. Measurements taken by @AlejandroFuentePinero (Alejandro de la Fuente).
+ - File "fur_depth_grtp.xlsx" contains the depth measurements for several positions within the 7 pelts of green ringtail possums. Measurements taken by Alejandro de la Fuente.
    - "_fur_id_" ID of the individual pelts. This value connect different datasets.
    - "_side_" fur region.
    - "_position_" position within the fur region where the measurements were taken (see figure below).
@@ -55,6 +55,25 @@ Credits: Alejandro de la Fuente.
 
 
 - File "Copy of Ellipsoid model_heatstress3_green ringtails.xls" contains the biophysical model for green ringtail possums in Excel. Usefull to explore the sensitivity of the analysis to a change of especific parameters.
+
+### Folder - **data_input**
+This folder contains the dataset in ".csv" format for their inputation in R.
+
+- File "hair_length_grtp.csv" contains the hair length measurements taken by Alejandro de la Fuente.
+  - "_fur_id_" ID of the individual pelts. This value connect different datasets.
+  - "_sample_id_" full ID of the fur, as defined in the collection bags.
+  - "_side_" fur region.
+  - "_hair_type_" indicates whether the hair was from the core part of the fur or guard.
+  - "_length_mm_" hair length in mm.
+  - "_length_m_ hair length in m.
+
+- File "fur_insulation_clean.csv" is a duplicate of the file "fur_insulation_clean.xlsx" described above but in ".csv" format for its inputation in R.
+
+- File "fur_depth_grtp.csv" is a summarised version of the file "fur_depth_grtp.xlsx" described above, containing only the main regions of the fur (dorsal, ventral, and side).
+
+- File "fur_dataset.csv" is is a duplicate of the file "fur_dataset_clean.xlsx" described above but in ".csv" format for its inputation in R. 
+
+- File "chamber_grtp.csv" contains the results from the chamber experiment for green ringtail possums led by Andrew Krockenberger; (Krokenberger et al. 2012, Oecologia.)[https://link.springer.com/article/10.1007/s00442-011-2146-2]
 
 
   
