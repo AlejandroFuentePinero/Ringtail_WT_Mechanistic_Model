@@ -6,6 +6,8 @@ Development of biophysical models for rainforest ringtail possums.
 Caption: Green Ringtail Possum (_Pseudochirops archeri_) at Mount Lewis National Park, Queensland, Australia. 
 Credits: Supalak Siri.
 
+
+
 ## Folder - Data
 This folder contains the data used for the models.
 
@@ -40,6 +42,20 @@ This folder contains the data used for the models.
   - "_Fur tip temp (deg C)_"
   - "_Air temp (deg C)/Ta_" measured 2 cm above the fur (information coming from Johan Larson).
   
- - File "fur_depth_grty.xlsx" contains the depth measurements for several positions within the 7 pelts of green ringtail possums. Measurements taken by @AlejandroFuentePinero (Alejandro de la Fuente).
+ - File "fur_depth_grtp.xlsx" contains the depth measurements for several positions within the 7 pelts of green ringtail possums. Measurements taken by @AlejandroFuentePinero (Alejandro de la Fuente).
+   - "_fur_id_" ID of the individual pelts. This value connect different datasets.
+   - "_side_" fur region.
+   - "_position_" position within the fur region where the measurements were taken (see figure below).
+
+
+![Green Ringtail Possum fur](https://github.com/AlejandroFuentePinero/Ringtail_WT_Mechanistic_Model/blob/main/pics/fur_depth_position.png)
+Caption: Green Ringtail Possum (_Pseudochirops archeri_) fur. Circles indicate the position of the fur where the different measurements of fur depth were taken (see file "fur_depth_grtp.xlsx"). 
+Credits: Alejandro de la Fuente.
+
+
+
+- File "Copy of Ellipsoid model_heatstress3_green ringtails.xls" contains the biophysical model for green ringtail possums in Excel. Usefull to explore the sensitivity of the analysis to a change of especific parameters.
+
+
   
 
