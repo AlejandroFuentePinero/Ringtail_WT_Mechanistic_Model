@@ -82,6 +82,30 @@ This folder contains the dataset in ".csv" format for R.
 - File "fur_dataset.csv" is a duplicate of the file "fur_dataset_clean.xlsx" described above but in ".csv" format for R. 
 
 - File "chamber_grtp.csv" contains the results from the chamber experiment for green ringtail possums led by Andrew Krockenberger; [Krokenberger et al. 2012. Oecologia](https://link.springer.com/article/10.1007/s00442-011-2146-2).
+  - "_Possum ID_"
+  - "_Time since tranq_" total time since tranquilation.
+  - "_Time in chamber_" total time in the chamber.
+  - "_Time of the day_"
+  - "_Mass_" body mass in Kg.
+  - "_LnMass_" log of mass.
+  - "_Mass0.737_" mass ^ 0.737 used to calculate basal metabolic rate.
+  - "_Temp-category_" target chamber temperature in deg C.
+  - "_Temp-Ambient_" measured ambient temperature in deg C.
+  - "_RMR kJ/d_" resting metabolic rate.
+  - "_Oxygen consumption ml/min_".
+  - "_BodytempoC_" possum body temperature in deg C.
+  - "_CO2Production ml/min_".
+  - "_EvapWaterloss mg/min_" evaporative water loss.
+  - "_RespRate hz_" respiration rate. Multiply by 100 to get breaths/min?.
+  - "_TidalVolume ml_".
+  - "_MinuteVolume ml/min".
+  - "_RECoeff_" ??
+  - "_Tb model_" predicted body temperature in deg C.
+  - "_RR_model_" predicted respiration rate??.
+  - "_TV model_" predicted tidal volume??.
+  - "_EWL model_" predicted evaporative water loss??.
+  - "_MV model_" predicted minute volume??.
+  - "_RR cubic model_" ??.
 
 ## Folder - **Scripts**
 This folder contains the R scripts created for the different analyses, tests, and simulations.
