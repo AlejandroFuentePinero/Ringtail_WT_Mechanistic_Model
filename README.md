@@ -5,7 +5,7 @@ Development of biophysical models for rainforest ringtail possums.
 <p align="center">
   <img src="https://github.com/AlejandroFuentePinero/Ringtail_WT_Mechanistic_Model/blob/main/pics/grtp.JPG" alt="Green Ringtail Possum."/>
 </p>
-Caption: Green Ringtail Possum (_Pseudochirops archeri_) at Mount Lewis National Park, Queensland, Australia. 
+Caption: Green Ringtail Possum (Pseudochirops archeri) at Mount Lewis National Park, Queensland, Australia. 
 Credits: Supalak Siri.
 
 
