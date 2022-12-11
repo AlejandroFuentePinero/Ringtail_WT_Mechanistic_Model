@@ -113,6 +113,8 @@ This folder contains the R scripts created for the different analyses, tests, an
 - File "thermal_conductance.R" calculates the observed and predicted fur thermal conductance for green ringtail possums. The observed conductance is calculated using the data provided in the file "fur_insulation_clean.csv". It tests different assumptions about the influence of fur depth on the calculation, exploring the potential measurement error. The predicted conductance is simulated within NicheMapR, calling the IRPROP subroutine. We test the influence of ambient temperature, skin temperature, and fur tip temperature in estimating thermal conductance. The for loop created here allows testing different assumptions and the sensitivity of the estimations. A final comparison between observed and predicted is produced.
 
 - File "Endotherm_component_tutorial.R" follows the original tutorial created by Michael Kearney but uses the fur properties of the green ringtail possum to assess the basic function of the different routines within the NicheMapR package.
+
+- File "Metabolic_chamber_grtp.R" simulates the chamber experiment conducted by Andrew Krockenberger and compares it to the observed values. We first explore the observed data from Krockenberger et al. 2012. Then, we set the chamber conditions and used the measured fur properties to simulate the possum characteristics. We use ethe endoR function to calculate thermoregulation, morphometric, heat balance, mass aspect, and the derivated values (metabolic rate, water evaporated, fur surface temperature, and core temperature).
   
 ## Folder - **Results**
 This folder contains the main results from the analyses.
