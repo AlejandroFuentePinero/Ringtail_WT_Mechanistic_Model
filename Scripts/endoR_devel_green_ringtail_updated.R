@@ -317,15 +317,16 @@ endoR_devel_grt<-function (TA = 20, TAREF = TA, TGRD = TA, TSKY = TA, VEL = 0.1,
       # pant
       # may lick (?)
       
-      if(TC < (TC_MAX - 2.5)){ # start to raise core temp
+      if(TC < (TC_MAX - 4)){ # start to raise core temp
         TC <- TC + TC_INC
         Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
         QBASAL <- QBASREF * Q10mult 
       }else{ # raise core temp and increase flesh conductivity
-        if((AK1 < AK1_MAX)| (TC < (TC_MAX - 1.5))){
+        if((AK1 < AK1_MAX)| (TC < (TC_MAX - 3))){
           AK1 <- AK1 + AK1_INC
           AK1[AK1 > AK1_MAX] <- AK1_MAX #Add check so don't overshoot
-          TC <- TC + TC_INC 
+          TC <- TC + TC_INC
+          TC[TC > (TC_MAX-3)] <- (TC_MAX-3) #Add check so don't overshoot
           Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
           QBASAL <- QBASREF * Q10mult + PANT_COST
         }else{

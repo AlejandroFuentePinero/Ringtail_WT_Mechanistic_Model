@@ -15,7 +15,7 @@ library(patchwork)
 
 setwd("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
 
-source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R")
+source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R")
 # Load data ---------------------------------------------------------------
 
 krock <- read_csv("chamber_grtp.csv")
@@ -118,32 +118,41 @@ tv_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `TidalVolume ml`)
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"))
 
-tv + tv_sum
+mv_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `MinuteVolume ml/min`))+
+  geom_point(size = 1, shape = 21, stroke = 2)+
+  geom_line()+
+  labs(x = "Ambient temperature (°C)", y = "Minute volume (ml/min)")+
+  theme_classic()+
+  theme(axis.title = element_text(size = 16),
+        axis.text = element_text(size = 12, colour = "black"))
+mv_sum
 
 # Environment -------------------------------------------------------------
 
 
 TAs <- sort(unique(krock$`Temp-Ambient`))
 VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
-hum <- as.data.frame(TAs)
-hum <- hum %>% mutate(hum = case_when( # humidity values obtained from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
-                 TAs < 7 ~ 60,
-                 TAs > 7 & TAs < 9 ~ 55,
-                 TAs > 9 & TAs < 11 ~ 50,
-                 TAs > 11 & TAs < 12 ~ 45,
-                 TAs > 12 & TAs < 15 ~ 40,
-                 TAs > 15 & TAs < 17 ~ 35,
-                 TAs > 17 ~ 30))
-
-hum <- as.vector(hum$hum) # (CHECK with Krock)
-
+#hum <- as.data.frame(TAs)
+#hum <- hum %>% mutate(hum = case_when( # humidity values obtained from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
+#                 TAs < 7 ~ 60,
+#                 TAs > 7 & TAs < 9 ~ 55,
+#                 TAs > 9 & TAs < 11 ~ 50,
+#                 TAs > 11 & TAs < 12 ~ 45,
+#                 TAs > 12 & TAs < 15 ~ 40,
+#                 TAs > 15 & TAs < 17 ~ 35,
+#                 TAs > 17 ~ 30))
+#
+#hum <- as.vector(hum$hum) # (CHECK with Krock)
+hum <- 40
 # Core temperature --------------------------------------------------------
 
 TC <- fur[[34,6]]
-TC_MAX <- 40.8 # from Krockenberger et al 2012
-krock_high_T <- krock %>% filter(krock$`Temp-Ambient`>=30) # select temperatures above 30 deg C to calculate the TC_INC
-TC_INC <- summary(lm(krock_high_T$`Tb model` ~ krock_high_T$`Temp-Ambient`))$coefficients[2,1] # this is the increment by which TC is elevated at high ambient temperature
-# (CHECK)
+#TC_MAX <- 40.8 # from Krockenberger et al 2012
+TC_MAX <- 39.8
+#krock_high_T <- krock %>% filter(krock$`Temp-Ambient`>=30) # select temperatures above 30 deg C to calculate the TC_INC
+#TC_INC <- summary(lm(krock_high_T$`Tb model` ~ krock_high_T$`Temp-Ambient`))$coefficients[2,1] # this is the increment by which TC is elevated at high ambient temperature
+TC_INC <- 0.05
+
 
 # Size and shape ----------------------------------------------------------
 
@@ -156,6 +165,7 @@ SHAPE <- 4 # (DEFAULT) use ellipsoid geometry
 SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified
 # in GEOM)
 PVEN <- fur[[22,6]]
+PCOND <- 0
 
 
 # Fur properties ----------------------------------------------------------
@@ -173,17 +183,18 @@ REFLV <- 0.351 # (DEFAULT) fur reflectivity ventral (fractional, 0-1)
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 0.5 # (CHECK) base skin wetness (%) (10% of the maximum?)
+PCTWET <- 2 # (CHECK) base skin wetness (%) (10% of the maximum?)
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
 #Q10s <- rep(fur[[42,6]],length(TAs)) # (CHECK)
 #Q10s[TAs >= 30] <- fur[[42,6]] # (CHECK)
-Q10 <- fur[[42,6]]
+#Q10 <- fur[[42,6]]
+Q10 <- 2
 QBASAL <- fur[[41,6]] # (CHECK) basal heat generation (W)
 DELTAR <- 5 # (DEFAULT) offset between air temperature and breath (°C)
 EXTREF <- 20 # (DEFAULT) O2 extraction efficiency (%)
-PANT_INC <- 0.1 # (DEFAULT) turns on panting, the value being the increment by which the panting multiplier
+PANT_INC <- 0.05 # (DEFAULT) turns on panting, the value being the increment by which the panting multiplier
 # is increased up to the maximum value, PANT_MAX
 PANT_MAX <- fur[[36,6]] # maximum panting rate - multiplier on air flow through the lungs above
 # that determined by metabolic rate
@@ -194,45 +205,45 @@ AK1_INC<- fur[[44,6]]
 
 # Run endoR ---------------------------------------------------------------
 
-endo.out <- lapply(1:length(TAs), function(x) {
-  endoR(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum[x],
-        AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
-        PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
-        PCTBAREVAP = PCTBAREVAP, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-        Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, DHAIRD = DHAIRD,
-        DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
-        ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD,
-        TC_INC = TC_INC, PANT_INC = PANT_INC, PANT_MAX = PANT_MAX,
-        EXTREF = EXTREF, UNCURL = UNCURL, SAMODE = SAMODE, PANT_MULT = PANT_MULT)
-}) # run endoR across environments
+#endo.out <- lapply(1:length(TAs), function(x) {
+#  endoR(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum[x],
+#        AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
+#        PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
+#        PCTBAREVAP = PCTBAREVAP, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
+#        Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, DHAIRD = DHAIRD,
+#        DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
+#        ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD,
+#        TC_INC = TC_INC, PANT_INC = PANT_INC, PANT_MAX = PANT_MAX,
+#        EXTREF = EXTREF, UNCURL = UNCURL, SAMODE = SAMODE, PANT_MULT = PANT_MULT)
+#}) # run endoR across environments
 
 endo.out_devel <- lapply(1:length(TAs), function(x) {
-  endoR_devel_green(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum[x],
+  endoR_devel_grt(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum, #RH = hum[x],
         AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
-        PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
-        PCTBAREVAP = PCTBAREVAP, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
+        PCTWET = PCTWET, PCTWET_INC = PCTWET_INC/2, PCTWET_MAX = PCTWET_MAX,
+        PCTBAREVAP = 5, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC/2, AK1_MAX = AK1_MAX,
         Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, DHAIRD = DHAIRD,
         DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
         ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD,
-        TC_INC = TC_INC, PANT_INC = PANT_INC, PANT_MAX = PANT_MAX,
-        EXTREF = EXTREF, UNCURL = UNCURL, SAMODE = SAMODE, PANT_MULT = PANT_MULT)
+        TC_INC = TC_INC/2, PANT_INC = PANT_INC/2, PANT_MAX = PANT_MAX,
+        EXTREF = EXTREF, UNCURL = UNCURL/2, SAMODE = SAMODE, PANT_MULT = PANT_MULT)
 }) # run endoR across environments
 
 # extract the output
-endo.out1 <- do.call("rbind", lapply(endo.out, data.frame))
+endo.out_devel1 <- do.call("rbind", lapply(endo.out_devel, data.frame))
 
 # thermoregulation output
-treg <- endo.out1[, grep(pattern = "treg", colnames(endo.out1))]
+treg <- endo.out_devel1[, grep(pattern = "treg", colnames(endo.out_devel1))]
 colnames(treg) <- gsub(colnames(treg), pattern = "treg.", replacement = "")
 # morphometric output
-morph <- endo.out1[, grep(pattern = "morph", colnames(endo.out1))]
+morph <- endo.out_devel1[, grep(pattern = "morph", colnames(endo.out_devel1))]
 colnames(morph) <- gsub(colnames(morph), pattern = "morph.",replacement = "")
 # heat balance
-enbal <- endo.out1[, grep(pattern = "enbal", colnames(endo.out1))]
+enbal <- endo.out_devel1[, grep(pattern = "enbal", colnames(endo.out_devel1))]
 colnames(enbal) <- gsub(colnames(enbal), pattern = "enbal.",
                         replacement = "")
 # mass aspects
-masbal <- endo.out1[, grep(pattern = "masbal", colnames(endo.out1))]
+masbal <- endo.out_devel1[, grep(pattern = "masbal", colnames(endo.out_devel1))]
 colnames(masbal) <- gsub(colnames(masbal), pattern = "masbal.",
                          replacement = "")
 
@@ -247,12 +258,14 @@ TFA_V <- treg$TFA_V # ventral fur surface temperature
 TskinD <- treg$TSKIN_D # dorsal skin temperature
 TskinV <- treg$TSKIN_V # ventral skin temperature
 TCs <- treg$TC # core temperature
+MV <- (masbal$AIR_L) / 60 * 1000 # l/h
 
 # Observed
 
 obs_TCs <- krock$`Body temp oC` # evaporative water loss
 obs_QGEN <- ((1000) * (krock$`RMR kJ/d`) / (24*60*60)) # metabolic rate
 obs_H2O <- (krock$`EvapWaterloss mg/min`)*0.06 # body temperature
+obs_mv <- krock$`MinuteVolume ml/min`
 # respiration rate
 # tidal volume
 
@@ -262,11 +275,13 @@ pred <- tibble(source = "NicheMapR",
                met_rate = QGEN,
                evap_water_loss = H2O,
                tc = TCs,
+               mv = MV,
                air_t = TAs)
 obs <- tibble(source = "Krock",
               met_rate = obs_QGEN,
               evap_water_loss = obs_H2O,
               tc = obs_TCs,
+              mv = obs_mv,
               air_t = TAs)
 
 comp <- rbind(pred, obs)
@@ -305,4 +320,24 @@ comp <- rbind(pred, obs)
           legend.text = element_text(size = 12),
           legend.title = element_text(size = 14)))
 
+(mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
+    geom_point(size = 1, shape = 21, stroke = 2)+
+    geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
+    labs(x = "Ambient temperature (°C)", y = "Minute volumne (ml/min)", col = "Source")+
+    scale_color_manual(values = c("black", "red"))+
+    theme_classic()+
+    theme(axis.title = element_text(size = 16),
+          axis.text = element_text(size = 12, colour = "black"),
+          legend.text = element_text(size = 12),
+          legend.title = element_text(size = 14)))
+
 #edit(endoR_devel)
+
+plot(endo.out_devel1$treg.SHAPE_B ~ TAs)
+plot(endo.out_devel1$treg.PANT ~ TAs)
+plot(endo.out_devel1$ ~ TAs)
+plot(endo.out_devel1$treg.K_FLESH ~ TAs)
+plot(endo.out_devel1$treg.PCTWET ~ TAs)
+plot(endo.out_devel1$treg.K_FUR_V ~ TAs)
+plot(endo.out_devel1$treg.K_FUR ~ TAs)
+plot(endo.out_devel1$treg.K_FUR_D ~ TAs)
