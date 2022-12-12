@@ -317,12 +317,12 @@ endoR_devel_grt<-function (TA = 20, TAREF = TA, TGRD = TA, TSKY = TA, VEL = 0.1,
       # pant
       # may lick (?)
       
-      if(TC < (TC_MAX - 4)){ # start to raise core temp
+      if(TC < (TC_MAX - 4) & TC_INC >0){ # start to raise core temp
         TC <- TC + TC_INC
         Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
         QBASAL <- QBASREF * Q10mult 
       }else{ # raise core temp and increase flesh conductivity
-        if((AK1 < AK1_MAX)| (TC < (TC_MAX - 3))){
+        if((AK1 < AK1_MAX)| (TC < (TC_MAX - 3) & TC_INC >0)){
           AK1 <- AK1 + AK1_INC
           AK1[AK1 > AK1_MAX] <- AK1_MAX #Add check so don't overshoot
           TC <- TC + TC_INC
@@ -337,7 +337,7 @@ endoR_devel_grt<-function (TA = 20, TAREF = TA, TGRD = TA, TSKY = TA, VEL = 0.1,
           }else{
             SHAPE_B <- SHAPE_B_MAX
             PVEN <- (SHAPE_B - 1.1)/(6 - 1.1) * PVEN_REF
-            if((PANT < PANT_MAX)| (TC < TC_MAX)){
+            if((PANT < PANT_MAX)| (TC < TC_MAX) & TC_INC >0){
               # increase panting
               PANT <- PANT + PANT_INC
               if(PANT > PANT_MAX){

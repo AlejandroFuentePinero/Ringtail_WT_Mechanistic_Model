@@ -130,7 +130,7 @@ mv_sum
 # Environment -------------------------------------------------------------
 
 
-TAs <- sort(unique(krock$`Temp-Ambient`))
+TAs <- krock$`Temp-Ambient`
 VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
 #hum <- as.data.frame(TAs)
 #hum <- hum %>% mutate(hum = case_when( # humidity values obtained from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
@@ -146,12 +146,12 @@ VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls
 hum <- 40
 # Core temperature --------------------------------------------------------
 
-TC <- fur[[34,6]]
+TCs <- krock$`Body temp oC`
 #TC_MAX <- 40.8 # from Krockenberger et al 2012
-TC_MAX <- 39.8
+TC_MAXs <- TCs
 #krock_high_T <- krock %>% filter(krock$`Temp-Ambient`>=30) # select temperatures above 30 deg C to calculate the TC_INC
 #TC_INC <- summary(lm(krock_high_T$`Tb model` ~ krock_high_T$`Temp-Ambient`))$coefficients[2,1] # this is the increment by which TC is elevated at high ambient temperature
-TC_INC <- 0.05
+TC_INC <- 0
 
 
 # Size and shape ----------------------------------------------------------
@@ -218,7 +218,7 @@ AK1_INC<- fur[[44,6]]
 #}) # run endoR across environments
 
 endo.out_devel <- lapply(1:length(TAs), function(x) {
-  endoR_devel_grt(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum, #RH = hum[x],
+  endoR_devel_grt(TA = TAs[x], VEL = VEL, TC = TCs[x], TC_MAX = TC_MAXs[x], RH = hum, #RH = hum[x],
         AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC/2, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC/2, AK1_MAX = AK1_MAX,
@@ -341,3 +341,6 @@ plot(endo.out_devel1$treg.PCTWET ~ TAs)
 plot(endo.out_devel1$treg.K_FUR_V ~ TAs)
 plot(endo.out_devel1$treg.K_FUR ~ TAs)
 plot(endo.out_devel1$treg.K_FUR_D ~ TAs)
+
+
+comp %>% filter(source == "NicheMapR") %>% ggplot(aes(x =air_t, y = tc))+ geom_point()
