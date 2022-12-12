@@ -11,7 +11,7 @@ fur,fur_depth,,tail,base,0.012,0.002,3.125,42,m,fur_depth_grpt.xlsx,,,
 fur,fur_depth,ZFURV,ventral,central,0.003,0.001,,42,m,fur_depth_grpt.xlsx,,,
 fur,fur_depth,ZFURD,dorsal,weighted_average,0.014317773,0.004062995,,6,m,fur_depth_grpt.xlsx,,"SUMPRODUCT(F5:F10,H5:H10)/SUM(H5:H10)","SQRT(SUMPRODUCT((F5:F10-F12)^2, H5:H10) / SUM(H5:H10, -1))"
 fur,hair_diameter,DHAIRD,dorsal,hair,9.93E-06,1.91E-06,,52,m,fur density data.xls,,,
-fur,hair_diameter,DHAIRV,ventral,hair,9.43E-06,1.72228E-06,,38,m,fur density data.xls,,,
+fur,hair_diameter,DHAIRV,ventral,hair,9.43E-06,1.72E-06,,38,m,fur density data.xls,,,
 fur,hair_density,,dorsal,hair,84828636.65,38580649.33,,7,1/m2,fur density data.xls,,,
 fur,hair_density,,dorsal,guard,1164241.247,1846424.695,,7,1/m2,fur density data.xls,,,
 fur,hair_density,RHOD,dorsal,total,85992877.89,,,7,1/m2,fur density data.xls,,,
@@ -43,3 +43,6 @@ physiology,basal_metabolic_rate,QBASAL,,,2.673611111,,,,W,Krockenberger et al 20
 physiology,increase_QBASAL_due_to_TC,Q10,,,3.223426474,,,,,GRTP RMR summary for Will 22nd Mach 2011.xls,"At 30 deg RMR = 2.539 & Tb = 	36.685, at 35deg RMR = 2.958 and Tb = 37.99
 
 ",,
+physiology,flesh_thermal_conductivity,AK1,minimum,,0.9,,,,,,,,
+physiology,flesh_thermal_conductivity,AK1_INC,increase,,0.1,,,,,,,,
+physiology,flesh_thermal_conductivity,AK1_MAX,maximum,,2.8,,,,,,,,

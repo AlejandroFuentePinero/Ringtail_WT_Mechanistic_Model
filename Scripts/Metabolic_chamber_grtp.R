@@ -15,6 +15,7 @@ library(patchwork)
 
 setwd("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
 
+source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R")
 # Load data ---------------------------------------------------------------
 
 krock <- read_csv("chamber_grtp.csv")
@@ -133,13 +134,14 @@ hum <- hum %>% mutate(hum = case_when( # humidity values obtained from file "Cop
                  TAs > 12 & TAs < 15 ~ 40,
                  TAs > 15 & TAs < 17 ~ 35,
                  TAs > 17 ~ 30))
-hum <- as.vector(hum$hum) # (CHECK)
+
+hum <- as.vector(hum$hum) # (CHECK with Krock)
 
 # Core temperature --------------------------------------------------------
 
 TC <- fur[[34,6]]
 TC_MAX <- 40.8 # from Krockenberger et al 2012
-krock_high_T <- krock %>% filter(krock$`Temp-Ambient`>=30) # select temperatures above 30 deg C to calculte the TC_INC
+krock_high_T <- krock %>% filter(krock$`Temp-Ambient`>=30) # select temperatures above 30 deg C to calculate the TC_INC
 TC_INC <- summary(lm(krock_high_T$`Tb model` ~ krock_high_T$`Temp-Ambient`))$coefficients[2,1] # this is the increment by which TC is elevated at high ambient temperature
 # (CHECK)
 
@@ -153,6 +155,7 @@ UNCURL <- 0.1 # (DEFAULT) allows the animal to uncurl to SHAPE_B_MAX, the value 
 SHAPE <- 4 # (DEFAULT) use ellipsoid geometry
 SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified
 # in GEOM)
+PVEN <- fur[[22,6]]
 
 
 # Fur properties ----------------------------------------------------------
@@ -168,24 +171,26 @@ RHOV <- fur[[19,6]] # hair density, ventral (1/m2)
 REFLD <- 0.248 # (DEFAULT) fur reflectivity dorsal (fractional, 0-1)
 REFLV <- 0.351 # (DEFAULT) fur reflectivity ventral (fractional, 0-1)
 
-
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 4 # (CHECK) base skin wetness (%) (10% of the maximum?)
+PCTWET <- 0.5 # (CHECK) base skin wetness (%) (10% of the maximum?)
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
-Q10s <- rep(1,length(TAs)) # (CHECK)
-Q10s[TAs >= 30] <- fur[[42,6]] # (CHECK)
+#Q10s <- rep(fur[[42,6]],length(TAs)) # (CHECK)
+#Q10s[TAs >= 30] <- fur[[42,6]] # (CHECK)
+Q10 <- fur[[42,6]]
 QBASAL <- fur[[41,6]] # (CHECK) basal heat generation (W)
 DELTAR <- 5 # (DEFAULT) offset between air temperature and breath (°C)
-EXTREF <- 25 # (DEFAULT) O2 extraction efficiency (%)
+EXTREF <- 20 # (DEFAULT) O2 extraction efficiency (%)
 PANT_INC <- 0.1 # (DEFAULT) turns on panting, the value being the increment by which the panting multiplier
 # is increased up to the maximum value, PANT_MAX
 PANT_MAX <- fur[[36,6]] # maximum panting rate - multiplier on air flow through the lungs above
 # that determined by metabolic rate
 PANT_MULT <- 1 # (DEFAULT) multiplier on basal metabolic rate at maximum panting level
-
+AK1 <- fur[[43,6]]
+AK1_MAX<- fur[[45,6]]
+AK1_INC<- fur[[44,6]]
 
 # Run endoR ---------------------------------------------------------------
 
@@ -193,8 +198,20 @@ endo.out <- lapply(1:length(TAs), function(x) {
   endoR(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum[x],
         AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
-        PCTBAREVAP = PCTBAREVAP,
-        Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, DHAIRD = DHAIRD,
+        PCTBAREVAP = PCTBAREVAP, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
+        Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, DHAIRD = DHAIRD,
+        DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
+        ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD,
+        TC_INC = TC_INC, PANT_INC = PANT_INC, PANT_MAX = PANT_MAX,
+        EXTREF = EXTREF, UNCURL = UNCURL, SAMODE = SAMODE, PANT_MULT = PANT_MULT)
+}) # run endoR across environments
+
+endo.out_devel <- lapply(1:length(TAs), function(x) {
+  endoR_devel_green(TA = TAs[x], VEL = VEL, TC = TC, TC_MAX = TC_MAX, RH = hum[x],
+        AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
+        PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
+        PCTBAREVAP = PCTBAREVAP, PVEN = PVEN, AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
+        Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, DHAIRD = DHAIRD,
         DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
         ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD,
         TC_INC = TC_INC, PANT_INC = PANT_INC, PANT_MAX = PANT_MAX,
@@ -288,3 +305,4 @@ comp <- rbind(pred, obs)
           legend.text = element_text(size = 12),
           legend.title = element_text(size = 14)))
 
+#edit(endoR_devel)
