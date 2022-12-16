@@ -1,4 +1,4 @@
-endoR_devel_grt <-
+endoR_devel_f1 <-
   function (TA = 20,
             TAREF = TA,
             TGRD = TA,

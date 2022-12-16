@@ -17,7 +17,9 @@ setwd("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanisti
 
 # Custom function ---------------------------------------------------------
 
-source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R")
+source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing
+source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING
+source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original?
 
 # Load data ---------------------------------------------------------------
 
@@ -86,7 +88,7 @@ rmr_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = ((1000) * (`RMR 
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"))
 
-rmr + rmr_sum
+rmr_plot <- rmr + rmr_sum
 
 bt_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `Body temp oC`))+
     geom_point(size = 1, shape = 21, stroke = 2)+
@@ -96,7 +98,7 @@ bt_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `Body temp oC`))+
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"))
   
-bt + bt_sum
+bt_plot <- bt + bt_sum
 
 ewl_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = ((`EvapWaterloss mg/min`)*0.06)))+
     geom_point(size = 1, shape = 21, stroke = 2)+
@@ -106,7 +108,7 @@ ewl_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = ((`EvapWaterloss
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"))
 
-ewl + ewl_sum
+ewl_plot <- ewl + ewl_sum
 
 rr_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = (`RespRate hz`)*60))+
     geom_point(size = 1, shape = 21, stroke = 2)+
@@ -116,7 +118,7 @@ rr_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = (`RespRate hz`)*6
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"))
 
-rr + rr_sum
+rr_plot <- rr + rr_sum
 
 tv_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `TidalVolume ml`))+
     geom_point(size = 1, shape = 21, stroke = 2)+
@@ -126,7 +128,7 @@ tv_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `TidalVolume ml`)
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"))
 
-tv + tv_sum
+tv_plot <- tv + tv_sum
 
 mv_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `MinuteVolume ml/min`))+
   geom_point(size = 1, shape = 21, stroke = 2)+
@@ -135,7 +137,7 @@ mv_sum <- krock_summary %>% ggplot(aes(x = `Temp-Ambient`, y = `MinuteVolume ml/
   theme_classic()+
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 12, colour = "black"))
-mv + mv_sum
+mv_plot <- mv + mv_sum
 
 # Environment -------------------------------------------------------------
 
@@ -216,13 +218,13 @@ AK1_INC<- fur[[44,6]]
 # Run endoR ---------------------------------------------------------------
 
 endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
-  endoR_devel_grt(
+  endoR_devel_f1(
         # ENVIRONMENT
-        #TA = TAs[x], VEL = VEL, RH = hum[x], # OPTION 1: DYNAMIC HUMIDITY
-        TA = TAs[x], VEL = VEL, RH = 40, # OPTION 2: STATIC HUMIDITY 
+        TA = TAs[x], VEL = VEL, RH = hum[x], # OPTION 1: DYNAMIC HUMIDITY
+        #TA = TAs[x], VEL = VEL, RH = 40, # OPTION 2: STATIC HUMIDITY 
         # CORE TEMPERATURE
-        #TC = TCs[x], TC_MAX = TC_MAXs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
-        TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
+        TC = TCs[x], TC_MAX = TC_MAXs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
+        #TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
         # SIZE AND SHAPE
         AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
         UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,
@@ -232,8 +234,8 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         # PHYSIOLOGICAL RESPONSES
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-        #Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
-        Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
+        Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
+        #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
         PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT)
 }) # run endoR across environments
 
@@ -292,50 +294,56 @@ obs <- tibble(source = "Krock",
 
 comp <- rbind(pred, obs)
 
-(mt_comp <- comp1 %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
+mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
   geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
-  labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source", title = "CORE T; AIR T; METABOLIC RATE")+
+  labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source")+
   scale_color_manual(values = c("black", "red"))+
   theme_classic()+
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14)))
+        legend.title = element_text(size = 14),
+      legend.position = c(0.8,0.8))
 
 
-(ewl_comp <- comp1 %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
+ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
   geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
-  labs(x = "Ambient temperature (°C)", y = "Evaporative water loss (g/hour)", col = "Source", title = "CORE T; AIR T; METABOLIC RATE")+
+  labs(x = "Ambient temperature (°C)", y = "Evaporative water loss\n(g/hour)", col = "Source")+
   scale_color_manual(values = c("black", "red"))+
   theme_classic()+
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
-        legend.title = element_text(size = 14)))
+        legend.title = element_text(size = 14), 
+        legend.position = "none")
 
-(bt_comp <- comp1 %>% ggplot(aes(x = air_t, y = tc, col = source))+
+bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
     geom_point(size = 1, shape = 21, stroke = 2)+
     geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
-    labs(x = "Ambient temperature (°C)", y = "Body temperature (°C)", col = "Source", size = "Source",title = "CORE T; AIR T; METABOLIC RATE")+
+    labs(x = "Ambient temperature (°C)", y = "Body temperature (°C)", col = "Source", size = "Source")+
     scale_color_manual(values = c("black", "red"))+
     theme_classic()+
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"),
           legend.text = element_text(size = 12),
-          legend.title = element_text(size = 14)))
+          legend.title = element_text(size = 14), 
+          legend.position = "none")
 
-(mv_comp <- comp1 %>% ggplot(aes(x = air_t, y = mv, col = source))+
+mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
     geom_point(size = 1, shape = 21, stroke = 2)+
     geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
-    labs(x = "Ambient temperature (°C)", y = "Minute volumne (ml/min)", col = "Source", title = "CORE T; AIR T; METABOLIC RATE")+
+    labs(x = "Ambient temperature (°C)", y = "Minute volumne\n(ml/min)", col = "Source")+
     scale_color_manual(values = c("black", "red"))+
     theme_classic()+
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"),
           legend.text = element_text(size = 12),
-          legend.title = element_text(size = 14)))
+          legend.title = element_text(size = 14), 
+          legend.position = "none")
  
 
-run1 <- (mt_comp + ewl_comp) / (bt_comp + mv_comp) 
+out <- (mt_comp + ewl_comp) / (bt_comp + mv_comp)
+out
+#ggsave(filename = "1_1_1.png", path = "~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Results/metabolic_chamber_results/custom_endoR_pven_no_full_thermoreg_seq")

@@ -265,7 +265,7 @@
 #' points(TCs ~ TAs, type = 'l', col = 'red')
 #' legend(x = 30, y = 33, legend = c("core", "skin dorsal", "skin ventral", "feathers dorsal", "feathers ventral"), col = c("red", "orange", "orange", "grey", "grey"), lty = c(1, 1, 2, 1, 2), bty = "n")
 #' plot(masbal$AIR_L * 1000 / 60 ~ TAs, ylim=c(0,250),  lty = 1, xlim=c(-5,50), ylab = "ml / min", xlab=paste("air temperature (deg C)"), type = 'l')
-endoR_devel_green <- function(
+endoR_devel_f2 <- function(
   TA = 20, # air temperature at local height (°C)
   TAREF = TA, # air temperature at reference height (°C)
   TGRD = TA, # ground temperature (°C)
