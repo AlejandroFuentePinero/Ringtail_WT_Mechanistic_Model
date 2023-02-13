@@ -527,120 +527,120 @@ endoR_devel_f1 <-
       TSKINV <-
         SIMULSOL.out[2, 2] #NB edit - Add this for conduction check
       
-    #   if (THERMOREG != 0) {
-    #     #Thermoreg sequence for green possums
-    #     # seek shade (select best from separate sims)
-    #     # start to increase TC
-    #     # increase flesh cond
-    #     # uncurl
-    #     # pant
-    #     # may lick (?)
-    #     
-    #     if (TC < (TC_MAX - 2.5) & TC_INC > 0) {
-    #       # start to raise core temp
-    #       TC <- TC + TC_INC
-    #       Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
-    #       QBASAL <- QBASREF * Q10mult
-    #     } else{
-    #       # raise core temp and increase flesh conductivity
-    #       if ((AK1 < AK1_MAX) | (TC < (TC_MAX - 1.5) & TC_INC > 0)) {
-    #         AK1 <- AK1 + AK1_INC
-    #         AK1[AK1 > AK1_MAX] <-
-    #           AK1_MAX #Add check so don't overshoot
-    #         TC <- TC + TC_INC
-    #         Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
-    #         QBASAL <- QBASREF * Q10mult + PANT_COST
-    #       } else{
-    #         if ((SHAPE_B < SHAPE_B_MAX) &
-    #             (UNCURL > 0)) {
-    #           #Uncurl - also run set of simulations with uncurl = 0 as not always beneficial
-    #           SHAPE_B <- SHAPE_B + UNCURL
-    #           #NB edit -Also need to adjust PVEN - the proportion of ventral fur exposed
-    #           PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
-    #         } else{
-    #           SHAPE_B <- SHAPE_B_MAX
-    #           PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
-    #           if ((PANT < PANT_MAX) | (TC < TC_MAX)) {
-    #             # increase panting
-    #             PANT <- PANT + PANT_INC
-    #             if (PANT > PANT_MAX) {
-    #               PANT <- PANT_MAX
-    #             }
-    #             PANT_COST <-
-    #               ((PANT - 1) / (PANT_MAX - 1) * PANT_MULT * QBASREF)
-    #             # increase core temp
-    #             TC <- TC + TC_INC # TC = 37.28+0.2 = 37.48
-    #             if (TC > TC_MAX) {
-    #               TC <- TC_MAX
-    #             }
-    #             # Adjust QBASAL for panting and TC
-    #             Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
-    #             QBASAL <- QBASREF * Q10mult + PANT_COST
-    #             
-    #           } else{
-    #             if (PCTWET < PCTWET_MAX) {
-    #               PCTWET <- PCTWET + PCTWET_INC
-    #               if (PCTWET >= PCTWET_MAX) {
-    #                 PCTWET = PCTWET_MAX
-    #               }
-    #             }
-    #             break
-    #           }
-    #         }
-    #       }
-    #     }
-    #   }
-    # }
+       if (THERMOREG != 0) {
+         #Thermoreg sequence for green possums
+         # seek shade (select best from separate sims)
+         # start to increase TC
+         # increase flesh cond
+         # uncurl
+         # pant
+         # may lick (?)
+         
+         if (TC < (TC_MAX - 2.5) & TC_INC > 0) {
+           # start to raise core temp
+           TC <- TC + TC_INC
+           Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
+           QBASAL <- QBASREF * Q10mult
+         } else{
+           # raise core temp and increase flesh conductivity
+           if ((AK1 < AK1_MAX) | (TC < (TC_MAX - 1.5) & TC_INC > 0)) {
+             AK1 <- AK1 + AK1_INC
+             AK1[AK1 > AK1_MAX] <-
+               AK1_MAX #Add check so don't overshoot
+             TC <- TC + TC_INC
+             Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
+             QBASAL <- QBASREF * Q10mult + PANT_COST
+           } else{
+             if ((SHAPE_B < SHAPE_B_MAX) &
+                 (UNCURL > 0)) {
+               #Uncurl - also run set of simulations with uncurl = 0 as not always beneficial
+               SHAPE_B <- SHAPE_B + UNCURL
+               #NB edit -Also need to adjust PVEN - the proportion of ventral fur exposed
+               PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
+             } else{
+               SHAPE_B <- SHAPE_B_MAX
+               PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
+               if ((PANT < PANT_MAX) | (TC < TC_MAX)) {
+                 # increase panting
+                 PANT <- PANT + PANT_INC
+                 if (PANT > PANT_MAX) {
+                   PANT <- PANT_MAX
+                 }
+                 PANT_COST <-
+                   ((PANT - 1) / (PANT_MAX - 1) * PANT_MULT * QBASREF)
+                 # increase core temp
+                 TC <- TC + TC_INC # TC = 37.28+0.2 = 37.48
+                 if (TC > TC_MAX) {
+                   TC <- TC_MAX
+                 }
+                 # Adjust QBASAL for panting and TC
+                 Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
+                 QBASAL <- QBASREF * Q10mult + PANT_COST
+                 
+               } else{
+                 if (PCTWET < PCTWET_MAX) {
+                   PCTWET <- PCTWET + PCTWET_INC
+                   if (PCTWET >= PCTWET_MAX) {
+                     PCTWET = PCTWET_MAX
+                   }
+                 }
+                 break
+               }
+             }
+           }
+         }
+       }
+     }
     
     ##OLD CODE####################
-      if (THERMOREG != 0) {
-        if (SHAPE_B < SHAPE_B_MAX) {
-          SHAPE_B <- SHAPE_B + UNCURL
-          #NB edit -Also need to adjust PVEN - the proportion of ventral fur exposed
-          PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
-        }
-        else {
-          SHAPE_B <- SHAPE_B_MAX
-          PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
-          if (AK1 < AK1_MAX) {
-            AK1 <- AK1 + AK1_INC
-          }
-          else {
-            AK1 <- AK1_MAX
-            if (TC < TC_MAX) {
-              TC <- TC + TC_INC
-              Q10mult <- Q10^((TC - TC_REF)/10)
-              QBASAL <- QBASREF * Q10mult
-            }
-            else {
-              TC <- TC_MAX
-              Q10mult <- Q10^((TC - TC_REF)/10)
-              if (PANT < PANT_MAX) {
-                PANT <- PANT + PANT_INC
-                PANT_COST <- ((PANT - 1)/(PANT_MAX - 1) *
-                                (PANT_MULT - 1) * QBASREF)
-                QBASAL <- QBASREF * Q10mult + PANT_COST
-              }
-              else {
-                PANT <- PANT_MAX
-                PANT_COST <- ((PANT - 1)/(PANT_MAX - 1) *
-                                (PANT_MULT - 1) * QBASREF)
-                QBASAL <- QBASREF * Q10mult + PANT_COST
-                PCTWET <- PCTWET + PCTWET_INC
-                if (PCTWET > PCTWET_MAX | PCTWET_INC ==
-                    0) {
-                  PCTWET <- PCTWET_MAX
-                  break
-                }
-              }
-            }
-          }
-        }
-      }
-      else {
-        break
-      }
-    }
+      #if (THERMOREG != 0) {
+        #if (SHAPE_B < SHAPE_B_MAX) {
+        #  SHAPE_B <- SHAPE_B + UNCURL
+        #  #NB edit -Also need to adjust PVEN - the proportion of ventral fur exposed
+        #  PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
+        #}
+        #else {
+        #  SHAPE_B <- SHAPE_B_MAX
+        #  PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
+          #if (AK1 < AK1_MAX) {
+          #  AK1 <- AK1 + AK1_INC
+          #}
+          #else {
+          #  AK1 <- AK1_MAX
+          #  #if (TC < TC_MAX) {
+          #  #  TC <- TC + TC_INC
+          #  #  Q10mult <- Q10^((TC - TC_REF)/10)
+          #  #  QBASAL <- QBASREF * Q10mult
+          #  #}
+          #  #else {
+          #    TC <- TC_MAX
+          #    Q10mult <- Q10^((TC - TC_REF)/10)
+          #    if (PANT < PANT_MAX) {
+          #      PANT <- PANT + PANT_INC
+          #      PANT_COST <- ((PANT - 1)/(PANT_MAX - 1) *
+          #                      (PANT_MULT - 1) * QBASREF)
+          #      QBASAL <- QBASREF * Q10mult + PANT_COST
+          #    }
+          #    else {
+          #      PANT <- PANT_MAX
+          #      PANT_COST <- ((PANT - 1)/(PANT_MAX - 1) *
+          #                      (PANT_MULT - 1) * QBASREF)
+          #      QBASAL <- QBASREF * Q10mult + PANT_COST
+          #      PCTWET <- PCTWET + PCTWET_INC
+    #            if (PCTWET > PCTWET_MAX | PCTWET_INC ==
+    #                0) {
+    #              PCTWET <- PCTWET_MAX
+    #              break
+    #            }
+    #          }
+    #        }
+    #      }
+    #    }
+    #  }
+    #  else {
+    #    break
+    #  }
+    #}
     
     TFA.D <- SIMULSOL.out[1, 1]
     TSKCALCAV.D <- SIMULSOL.out[1, 2]

@@ -13,13 +13,13 @@ library(patchwork)
 
 # Working directory -------------------------------------------------------
 
-setwd("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
+setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
 
 # Custom function ---------------------------------------------------------
 
-source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing
-source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING
-source("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original?
+source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing
+source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING
+source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original?
 
 # Load data ---------------------------------------------------------------
 
@@ -142,7 +142,7 @@ mv_plot <- mv + mv_sum
 # Environment -------------------------------------------------------------
 
 TAs <- krock$`Temp-Ambient`
-VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
+VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls"
 hum <- as.data.frame(TAs)
 hum <- hum %>% 
 mutate(hum = case_when( # humidity values obtained from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
@@ -223,8 +223,8 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         TA = TAs[x], VEL = VEL, RH = hum[x], # OPTION 1: DYNAMIC HUMIDITY
         #TA = TAs[x], VEL = VEL, RH = 40, # OPTION 2: STATIC HUMIDITY 
         # CORE TEMPERATURE
-        TC = TCs[x], TC_MAX = TC_MAXs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
-        #TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
+        #TC = TCs[x], TC_MAX = TC_MAXs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
+        TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
         # SIZE AND SHAPE
         AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
         UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,
@@ -234,8 +234,8 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         # PHYSIOLOGICAL RESPONSES
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-        Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
-        #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
+        #Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
+        Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
         PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT)
 }) # run endoR across environments
 
@@ -346,4 +346,5 @@ mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
 
 out <- (mt_comp + ewl_comp) / (bt_comp + mv_comp)
 out
-#ggsave(filename = "1_1_1.png", path = "~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Results/metabolic_chamber_results/custom_endoR_pven_no_full_thermoreg_seq")
+#ggsave(filename = "1_2_1.png", path = "/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model//Results/metabolic_chamber_results/custom_endoR_pven_no_full_thermoreg_seq")
+
