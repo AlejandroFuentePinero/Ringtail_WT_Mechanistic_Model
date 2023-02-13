@@ -14,8 +14,7 @@ library(geomtextpath)
 
 # Working directory -------------------------------------------------------
 
-setwd("~/Library/CloudStorage/OneDrive-JamesCookUniversity/Ringtail - Mechanistic model - Wet Tropics/Data")
-
+setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data")
 
 # Fur data ----------------------------------------------------------------
 
@@ -136,9 +135,9 @@ ins2 %>% ggplot(aes(x = fur_id))+
 
 ## 1- Assuming error (using depth_error) and including intra-variability across furs
 
-#ins2$thermal_cond_bt <- (-(ins2$`HFT (W)` * ins2$depth_error) / ins2$delta_T_base_tip)
-#ins2$thermal_cond_ba <- (-(ins2$`HFT (W)` * ins2$depth_error) / ins2$delta_T_base_air)
-#ins2$thermal_cond_ta <- (-(ins2$`HFT (W)` * ins2$depth_error) / ins2$delta_T_tip_air)
+ins2$thermal_cond_bt <- (-(ins2$`HFT (W)` * ins2$depth_error) / ins2$delta_T_base_tip)
+ins2$thermal_cond_ba <- (-(ins2$`HFT (W)` * ins2$depth_error) / ins2$delta_T_base_air)
+ins2$thermal_cond_ta <- (-(ins2$`HFT (W)` * ins2$depth_error) / ins2$delta_T_tip_air)
 
 ## 2- Assuming consistency across pelts
 
@@ -148,9 +147,9 @@ ins2 %>% ggplot(aes(x = fur_id))+
 
 ## 3- Assume no-error but including intra-variability across furs
 
-ins2$thermal_cond_bt <- (-(ins2$`HFT (W)` * ins2$depth) / ins2$delta_T_base_tip)
-ins2$thermal_cond_ba <- (-(ins2$`HFT (W)` * ins2$depth) / ins2$delta_T_base_air)
-ins2$thermal_cond_ta <- (-(ins2$`HFT (W)` * ins2$depth) / ins2$delta_T_tip_air)
+#ins2$thermal_cond_bt <- (-(ins2$`HFT (W)` * ins2$depth) / ins2$delta_T_base_tip)
+#ins2$thermal_cond_ba <- (-(ins2$`HFT (W)` * ins2$depth) / ins2$delta_T_base_air)
+#ins2$thermal_cond_ta <- (-(ins2$`HFT (W)` * ins2$depth) / ins2$delta_T_tip_air)
 
 # Summarise data per wind and fur area. This return the thermal conductance values at the species level, as it averages across the 7 pelts
 
