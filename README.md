@@ -67,6 +67,9 @@ Credits: Alejandro de la Fuente.
 ### Folder - **data_input**
 This folder contains the dataset in ".csv" format for R.
 
+- File "fur_data_lat_elev_year_segregation.csv" contains the aggregation of the fur data collected at the museum across latitude (round to 0.5 degrees), elevation (100 m category), age (juvenile, adult, baby) and year to account for potential variability in fur features.
+- File "fur_data_all_species.csv" constains the highest level of aggregation that we will use in the analysis, which is across species and age. Therefore, here, any spatiotemporal variability is lost here.
+
 - File "hair_length_grtp.csv" contains the hair length measurements taken by Alejandro de la Fuente.
   - "_fur_id_" ID of the individual pelts. This value connects different datasets.
   - "_sample_id_" full ID of the fur, as defined in the collection bags.
@@ -115,6 +118,7 @@ This folder contains the R scripts created for the different analyses, tests, an
 - File "Endotherm_component_tutorial.R" follows the original tutorial created by Michael Kearney but uses the fur properties of the green ringtail possum to assess the basic function of the different routines within the NicheMapR package.
 
 - File "Metabolic_chamber_grtp.R" simulates the chamber experiment conducted by Andrew Krockenberger and compares it to the observed values. We first explore the observed data from Krockenberger et al. 2012. Then, we set the chamber conditions and used the measured fur properties to simulate the possum characteristics. We use ethe endoR function to calculate thermoregulation, morphometric, heat balance, mass aspect, and the derivated values (metabolic rate, water evaporated, fur surface temperature, and core temperature).
+- File "fur_data_exploration_and_aggregation.R" explores the museum data and create the levels of data aggregation defined above.
   
 ## Folder - **Results**
 This folder contains the main results from the analyses.
