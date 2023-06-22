@@ -17,18 +17,14 @@ library(patchwork)
 
 # Custom function ---------------------------------------------------------
 
-<<<<<<< HEAD
 source("Scripts/endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version
-=======
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing (f1)
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING (f2)
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original? (f3)
->>>>>>> fd6e4df37407b2b770bb8f8d0e8aa7fd2622e332
+
 
 # Load data ---------------------------------------------------------------
 
 krock <- read_csv("Data/data_input/chamber_grtp.csv")
 fur <- read_csv("Data/data_input/fur_dataset.csv")
+fur_all<-read_csv("Data/data_input/fur_data_all_species.csv")
 
 # Plots from Krockenberger et al. 2012 ------------------------------------
 
@@ -146,7 +142,7 @@ mv_plot <- mv + mv_sum
 # Environment -------------------------------------------------------------
 
 TAs <- krock$`Temp-Ambient`
-VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls"
+VEL <- 0.001 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls"
 hum <- as.data.frame(TAs)
 hum <- hum %>% 
 mutate(hum = case_when( # humidity values obtained from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
@@ -175,17 +171,18 @@ SHAPE_B_MAX <- fur[[40,6]] # maximum ratio of length to width/depth
 UNCURL <- 0.1 # (DEFAULT) allows the animal to uncurl to SHAPE_B_MAX, the value being the increment SHAPE_B is increased per iteration
 SHAPE <- 4 # (DEFAULT) use ellipsoid geometry
 SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
-PVEN <- fur[[22,6]]
+PVEN <- fur_all[[1,6]]
+PVEN <- 0.5 #Adjust to incorporate limbs in ventral surface - need to update fur properties to capture this
 PCOND <- 0
 
 # Fur properties ----------------------------------------------------------
 
 DHAIRD <- fur[[12,6]] # hair diameter, dorsal (m)
 DHAIRV <- fur[[13,6]] # hair diameter, ventral (m)
-LHAIRD <- fur[[1,6]] # hair length, dorsal (m)
-LHAIRV <- fur[[2,6]] # hair length, ventral (m)
-ZFURD <- fur[[11,6]] # fur depth, dorsal (m)
-ZFURV <- fur[[10,6]] # fur depth, ventral (m)
+LHAIRD <- fur_all[[2,5]] # hair length, dorsal (m)
+LHAIRV <- fur_all[[4,5]] # hair length, ventral (m)
+ZFURD <- fur_all[[1,5]] # fur depth, dorsal (m)
+ZFURV <- fur_all[[3,5]] # fur depth, ventral (m)
 RHOD <- fur[[16,6]] # hair density, dorsal (1/m2)
 RHOV <- fur[[19,6]] # hair density, ventral (1/m2)
 REFLD <- 0.248 # (DEFAULT) fur reflectivity dorsal (fractional, 0-1)
@@ -193,17 +190,25 @@ REFLV <- 0.351 # (DEFAULT) fur reflectivity ventral (fractional, 0-1)
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 2 # (CHECK) base skin wetness (%) (10% of the maximum?)
+PCTWET <- 0.5 # (CHECK) base skin wetness (%) (10% of the maximum?)
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
 #Q10s <- rep(1,length(TAs)) 
 #Q10s[TAs >= 30] <- fur[[42,6]]
 #Q10 <- fur[[42,6]]
-#Q10 <- 2
-Q10 <- (255.59/212.35)^(10/(37.99-36.685)) # conversion of metabolic rate to Wats
+Q10 <- 2 #This is default, but lower than calculated values
+#Q10 <- (255.59/212.35)^(10/(37.99-36.685)) # conversion of metabolic rate to Wats
 QBASAL <- fur[[41,6]] # (CHECK) basal heat generation (W)
 DELTAR <- 5 # (DEFAULT) offset between air temperature and breath (°C)
+
+#Also check setting this based on observed relationship in GGs
+EXP_TEMP<-0.76*TAs + 11.6 # at 10-25deg, exp = 0.76*TA - 11.6, 25-40 = 0.35x + 21.25
+EXP_TEMP[TAs>=25]<-0.35 * TAs[TAs>=25] + 21.35
+DELTARs<-EXP_TEMP - TAs
+
+#Nat to check feasibility of making DELTAR always vary with predicted TLUNG
+
 EXTREF <- 20 # (DEFAULT) O2 extraction efficiency (%)
 PANT_INC <- 0.05 # (DEFAULT) turns on panting, the value being the increment by which the panting multiplier is increased up to the maximum value, PANT_MAX
 PANT_MAX <- fur[[36,6]] # maximum panting rate - multiplier on air flow through the lungs above that determined by metabolic rate
@@ -219,6 +224,8 @@ AK1_INC<- fur[[44,6]]
 #     * METABOLIC RATE         #
 ################################
 
+# Run using mass of observed individuals + estimate metabolic rate based on allometric relationship
+
 AMASSs<-krock$Mass
 
 a<-(231*1000/(24*60*60))/1.17^0.737
@@ -232,10 +239,10 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
   endoR_devel_grtp(
         # ENVIRONMENT
         TA = TAs[x], VEL = VEL, RH = hum[x], # OPTION 1: DYNAMIC HUMIDITY
-        #TA = TAs[x], VEL = VEL, RH = 40, # OPTION 2: STATIC HUMIDITY 
+        #TA = TAs[x], VEL = VEL, RH = 10, # OPTION 2: STATIC HUMIDITY 
         # CORE TEMPERATURE
-        TC = TCs[x], TC_MAX = TCs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
-        #TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
+        #TC = TCs[x], TC_MAX = TCs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
+        TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.02, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
         # SIZE AND SHAPE
         AMASS = AMASSs[x], SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
         UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,
@@ -245,14 +252,9 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         # PHYSIOLOGICAL RESPONSES
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-<<<<<<< HEAD
-        Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
+        Q10 = Q10, QBASAL = QBASALs[x], DELTAR = DELTARs[x], PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
         #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
-        #Q10 = 1, QBASAL = QBASALs[x], DELTAR = DELTAR, PANT_INC = PANT_INC,
-=======
-        Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
-        #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
->>>>>>> fd6e4df37407b2b770bb8f8d0e8aa7fd2622e332
+        
         PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT)
 }) # run endoR across environments
 

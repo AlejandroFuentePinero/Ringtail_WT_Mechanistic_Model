@@ -701,7 +701,7 @@ endoR_devel_grtp <- function(
       SIMULSOL.out[2, 2] #NB edit - Add this for conduction check
     
     if (THERMOREG != 0) {
-      #Thermoreg sequence for green possums
+      #Thermoreg sequence for green possums **UPDATE SO UNCURL & INCREASE AK1 AT SAME TIME INCREASE TC
       # seek shade (select best from separate sims)
       # start to increase TC
       # increase flesh cond
@@ -709,14 +709,14 @@ endoR_devel_grtp <- function(
       # pant
       # may lick (?)
       
-      if (TC < (TC_MAX - 2.5) & TC_INC > 0) {
+      if (TC < (TC_MAX - 4.5) & TC_INC > 0) {
         # start to raise core temp
         TC <- TC + TC_INC
         Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
         QBASAL <- QBASREF * Q10mult
       } else{
         # raise core temp and increase flesh conductivity
-        if ((AK1 < AK1_MAX) | (TC < (TC_MAX - 1.5) & TC_INC > 0)) {
+        if ((AK1 < AK1_MAX) | (TC < (TC_MAX - 3.5) & TC_INC > 0)) {
           AK1 <- AK1 + AK1_INC
           AK1[AK1 > AK1_MAX] <-
             AK1_MAX #Add check so don't overshoot
