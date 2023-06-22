@@ -17,9 +17,9 @@ setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD 
 
 # Custom function ---------------------------------------------------------
 
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original?
+source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing (f1)
+source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING (f2)
+source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original? (f3)
 
 # Load data ---------------------------------------------------------------
 
@@ -234,8 +234,8 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         # PHYSIOLOGICAL RESPONSES
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-        #Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
-        Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
+        Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
+        #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
         PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT)
 }) # run endoR across environments
 
@@ -320,10 +320,11 @@ ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
         legend.position = "none")
 
 bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
-    geom_point(size = 1, shape = 21, stroke = 2)+
+    geom_point(aes(size = source),shape = 21, stroke = 2)+
     geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
     labs(x = "Ambient temperature (°C)", y = "Body temperature (°C)", col = "Source", size = "Source")+
     scale_color_manual(values = c("black", "red"))+
+    scale_size_manual(values = c(1, 2.5))+
     theme_classic()+
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"),
