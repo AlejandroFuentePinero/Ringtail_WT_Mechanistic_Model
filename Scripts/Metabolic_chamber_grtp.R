@@ -13,18 +13,16 @@ library(patchwork)
 
 # Working directory -------------------------------------------------------
 
-setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
+#setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
 
 # Custom function ---------------------------------------------------------
 
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail_updated.R") # latest for testing
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_green_ringtail.R") # ERROR WITH ZEN MISSING
-source("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Scripts/endoR_devel_grtp_NB.R") # original?
+source("Scripts/endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version
 
 # Load data ---------------------------------------------------------------
 
-krock <- read_csv("chamber_grtp.csv")
-fur <- read_csv("fur_dataset.csv")
+krock <- read_csv("Data/data_input/chamber_grtp.csv")
+fur <- read_csv("Data/data_input/fur_dataset.csv")
 
 # Plots from Krockenberger et al. 2012 ------------------------------------
 
@@ -197,13 +195,13 @@ PCTBAREVAP <- fur[[38,6]]
 #Q10s[TAs >= 30] <- fur[[42,6]]
 #Q10 <- fur[[42,6]]
 #Q10 <- 2
-Q10s <- ((1000) * (krock$`RMR kJ/d`) / (24*60*60)) # conversion of metabolic rate to Wats
+Q10 <- (255.59/212.35)^(10/(37.99-36.685)) # conversion of metabolic rate to Wats
 QBASAL <- fur[[41,6]] # (CHECK) basal heat generation (W)
 DELTAR <- 5 # (DEFAULT) offset between air temperature and breath (°C)
 EXTREF <- 20 # (DEFAULT) O2 extraction efficiency (%)
 PANT_INC <- 0.05 # (DEFAULT) turns on panting, the value being the increment by which the panting multiplier is increased up to the maximum value, PANT_MAX
 PANT_MAX <- fur[[36,6]] # maximum panting rate - multiplier on air flow through the lungs above that determined by metabolic rate
-PANT_MULT <- 1 # (DEFAULT) multiplier on basal metabolic rate at maximum panting level
+PANT_MULT <- 0 # (DEFAULT) multiplier on basal metabolic rate at maximum panting level
 AK1 <- fur[[43,6]]
 AK1_MAX<- fur[[45,6]]
 AK1_INC<- fur[[44,6]]
@@ -215,18 +213,25 @@ AK1_INC<- fur[[44,6]]
 #     * METABOLIC RATE         #
 ################################
 
-# Run endoR ---------------------------------------------------------------
+AMASSs<-krock$Mass
+
+a<-(231*1000/(24*60*60))/1.17^0.737
+
+QBASALs<-a*krock$Mass0.737
+
+
+# Run end Or ---------------------------------------------------------------
 
 endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
-  endoR_devel_f1(
+  endoR_devel_grtp(
         # ENVIRONMENT
         TA = TAs[x], VEL = VEL, RH = hum[x], # OPTION 1: DYNAMIC HUMIDITY
         #TA = TAs[x], VEL = VEL, RH = 40, # OPTION 2: STATIC HUMIDITY 
         # CORE TEMPERATURE
-        #TC = TCs[x], TC_MAX = TC_MAXs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
-        TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
+        TC = TCs[x], TC_MAX = TCs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
+        #TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.05, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
         # SIZE AND SHAPE
-        AMASS = AMASS, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
+        AMASS = AMASSs[x], SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
         UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,
         # FUR PROPERTIES
         DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
@@ -234,8 +239,9 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         # PHYSIOLOGICAL RESPONSES
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-        #Q10 = Q10s[x], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
-        Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
+        Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
+        #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
+        #Q10 = 1, QBASAL = QBASALs[x], DELTAR = DELTAR, PANT_INC = PANT_INC,
         PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT)
 }) # run endoR across environments
 
