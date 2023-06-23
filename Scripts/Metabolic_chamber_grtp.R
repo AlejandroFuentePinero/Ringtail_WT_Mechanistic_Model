@@ -17,8 +17,8 @@ library(patchwork)
 
 # Custom function ---------------------------------------------------------
 
-source("Scripts/endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version
-
+#source("Scripts/endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version
+source("Scripts/AF_thermoreg_endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version with thermoreg happening simultaneously until panting
 
 # Load data ---------------------------------------------------------------
 
@@ -255,7 +255,7 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         Q10 = Q10, QBASAL = QBASALs[x], DELTAR = DELTARs[x], PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
         #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
         
-        PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT)
+        PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, SHADE = 100)
 }) # run endoR across environments
 
 # extract the output
