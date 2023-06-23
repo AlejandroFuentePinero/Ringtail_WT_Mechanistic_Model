@@ -5,7 +5,8 @@ library(ozmaps)
 library(patchwork)
 library(lubridate)
 
-setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
+#setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/data_input")
+setwd("Data/data_input")
 
 d <- read.csv("fur_measurement_QLD_museum.csv")
 
@@ -133,9 +134,9 @@ plot(d$lat_cat, d$lat)
 # weights for the dorsal depth weighted average
 
 d <- d %>% mutate(weight_contribution = case_when(
-  metric == "depth" & area == "dorsal" ~ 0.6,
+  metric == "depth" & area == "dorsal" ~ 0.5,
   metric == "depth" & area == "head" ~ 0.1,
-  metric == "depth" & area ==  "side" ~ 0.3,
+  metric == "depth" & area ==  "side" ~ 0.4,
   TRUE ~ 1
 ))
 
@@ -217,5 +218,5 @@ fur_data_final %>% ggplot(aes(species, val, col = age))+
   facet_wrap(~nichemapr, scales = "free")+
   theme_bw()
 
-# write_csv(fur_data_final, "fur_data_all_species.csv")
-# write_csv(d_summary2, "fur_data_lat_elev_year_segregation.csv")
+ write_csv(fur_data_final, "fur_data_all_species.csv")
+ write_csv(d_summary2, "fur_data_lat_elev_year_segregation.csv")

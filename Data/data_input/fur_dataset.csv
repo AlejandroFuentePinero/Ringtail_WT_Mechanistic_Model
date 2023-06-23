@@ -37,8 +37,8 @@ physiology,max_core_temperature,TC_MAX,,,40.8,,,,deg C,estimated in Krockenberge
 physiology,max_panting,PANT_MAX,,,2,,,,,GRTP RMR summary for Will 22nd Mach 2011.xls,"minute volume increased by 1.73x between TAs of 30 and 35, however, possums increase minute volumn by 2x at cold temps, likely didn't maximise this at high temps? ",,
 physiology,max_surface_area_wet_licking,PCTWET_MAX,,,40,,,,,Ask Andrew,if they use this it is a late thermoreg option,,
 physiology,percent_area_for_evaporation_skin,PCTBAREVAP,,,0,,,,,Ask Andrew if likely lick hands & feet,,,
-dimensions,ratio_long_short_axis,SHAPE_B,,,1.1,,,,,Can curl in a ball,,,
-dimensions,max_ratio_long_short_axis,SHAPE_B_MAX,,,6,,,,,,Check - see if any photos of them climbing,,
+dimensions,ratio_long_short_axis,SHAPE_B,,,1.01,,,,,Can curl in a ball,,,
+dimensions,max_ratio_long_short_axis,SHAPE_B_MAX,,,8,,,,,,Check - see if any photos of them climbing,,
 physiology,basal_metabolic_rate,QBASAL,,,2.673611111,,,,W,Krockenberger et al 2012,at 27.1 deg average mass of 1.17kg (in code express as function of mass^0.737),,
 physiology,increase_QBASAL_due_to_TC,Q10,,,3.223426474,,,,,GRTP RMR summary for Will 22nd Mach 2011.xls,"At 30 deg RMR = 2.539 & Tb = 	36.685, at 35deg RMR = 2.958 and Tb = 37.99
 

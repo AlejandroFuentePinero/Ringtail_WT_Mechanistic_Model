@@ -173,7 +173,7 @@ SHAPE <- 4 # (DEFAULT) use ellipsoid geometry
 SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
 PVEN <- fur_all[[1,6]]
 PVEN <- 0.5 #Adjust to incorporate limbs in ventral surface - need to update fur properties to capture this
-PCOND <- 0
+PCOND <- 0.07 #Ask Andrew
 
 # Fur properties ----------------------------------------------------------
 
@@ -190,14 +190,15 @@ REFLV <- 0.351 # (DEFAULT) fur reflectivity ventral (fractional, 0-1)
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 1 # (CHECK) base skin wetness (%) (10% of the maximum?)
+PCTWET <- 1.5 # (CHECK) base skin wetness (%) (10% of the maximum?)
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
+PCTBAREVAP<-3 # check this with AK
 #Q10s <- rep(1,length(TAs)) 
 #Q10s[TAs >= 30] <- fur[[42,6]]
 #Q10 <- fur[[42,6]]
-Q10 <- 2 #This is default, but lower than calculated values
+Q10 <- 1.5 #This is default, but lower than calculated values
 #Q10 <- (255.59/212.35)^(10/(37.99-36.685)) # conversion of metabolic rate to Wats
 QBASAL <- fur[[41,6]] # (CHECK) basal heat generation (W)
 DELTARs <- rep(5,length(TAs)) # (DEFAULT) offset between air temperature and breath (°C)
@@ -248,7 +249,7 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         TC = fur[[34,6]], TC_MAX = fur[[35,6]], TC_INC = 0.02, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
         # SIZE AND SHAPE
         AMASS = AMASSs[x], SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
-        UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,
+        UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,FATPCT = 10,
         # FUR PROPERTIES
         DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
         ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD, DHAIRD = DHAIRD,
@@ -257,8 +258,7 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
         Q10 = Q10, QBASAL = QBASALs[x], DELTAR = DELTARs[x], PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
         #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
-        
-        PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, SHADE = 100)
+        PCOND = PCOND, PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, SHADE = 100)
 }) # run endoR across environments
 
 # extract the output
@@ -318,7 +318,7 @@ comp <- rbind(pred, obs)
 
 mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
+  #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
   labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source")+
   scale_color_manual(values = c("black", "red"))+
   theme_classic()+
@@ -326,12 +326,12 @@ mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
-      legend.position = c(0.8,0.8))
+      legend.position = "none")
 
 
 ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
+  #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
   labs(x = "Ambient temperature (°C)", y = "Evaporative water loss\n(g/hour)", col = "Source")+
   scale_color_manual(values = c("black", "red"))+
   theme_classic()+
@@ -343,7 +343,7 @@ ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
 
 bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
     geom_point(aes(size = source),shape = 21, stroke = 2)+
-    geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
+    #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
     labs(x = "Ambient temperature (°C)", y = "Body temperature (°C)", col = "Source", size = "Source")+
     scale_color_manual(values = c("black", "red"))+
     scale_size_manual(values = c(1, 2.5))+
@@ -356,7 +356,7 @@ bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
 
 mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
     geom_point(size = 1, shape = 21, stroke = 2)+
-    geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
+    #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
     labs(x = "Ambient temperature (°C)", y = "Minute volumne\n(ml/min)", col = "Source")+
     scale_color_manual(values = c("black", "red"))+
     theme_classic()+

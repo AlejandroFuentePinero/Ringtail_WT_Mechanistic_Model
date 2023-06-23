@@ -417,8 +417,8 @@ endoR_devel_grtp <- function(
   PVEN = (SHAPE_B - 1.1)/(6 - 1.1) * PVEN_REF #initial value
   
   #Also use PCOND to set the max PCOND for the hour since no longer have a variable for this
-  PCOND_MAX = PCOND
-  PCOND = 0
+  #PCOND_MAX = PCOND
+  #PCOND = 0
   
   while(QGEN < QBASAL){
     
