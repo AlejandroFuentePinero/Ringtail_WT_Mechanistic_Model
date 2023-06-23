@@ -142,7 +142,7 @@ mv_plot <- mv + mv_sum
 # Environment -------------------------------------------------------------
 
 TAs <- krock$`Temp-Ambient`
-VEL <- 0.001 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls"
+VEL <- 0.01 # from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls"
 hum <- as.data.frame(TAs)
 hum <- hum %>% 
 mutate(hum = case_when( # humidity values obtained from file "Copy of Ellipsoid model_heatstress3_green ringtails.xls)
@@ -190,7 +190,7 @@ REFLV <- 0.351 # (DEFAULT) fur reflectivity ventral (fractional, 0-1)
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 0.5 # (CHECK) base skin wetness (%) (10% of the maximum?)
+PCTWET <- 1 # (CHECK) base skin wetness (%) (10% of the maximum?)
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
@@ -200,12 +200,15 @@ PCTBAREVAP <- fur[[38,6]]
 Q10 <- 2 #This is default, but lower than calculated values
 #Q10 <- (255.59/212.35)^(10/(37.99-36.685)) # conversion of metabolic rate to Wats
 QBASAL <- fur[[41,6]] # (CHECK) basal heat generation (W)
-DELTAR <- 5 # (DEFAULT) offset between air temperature and breath (°C)
+DELTARs <- rep(5,length(TAs)) # (DEFAULT) offset between air temperature and breath (°C)
 
 #Also check setting this based on observed relationship in GGs
-EXP_TEMP<-0.76*TAs + 11.6 # at 10-25deg, exp = 0.76*TA - 11.6, 25-40 = 0.35x + 21.25
-EXP_TEMP[TAs>=25]<-0.35 * TAs[TAs>=25] + 21.35
-DELTARs<-EXP_TEMP - TAs
+# EXP_TEMP<-0.76*TAs + 11.6 # at 10-25deg, exp = 0.76*TA - 11.6, 25-40 = 0.35x + 21.25
+# EXP_TEMP[TAs>=25]<-0.35 * TAs[TAs>=25] + 21.35
+# DELTARs<-EXP_TEMP - TAs
+# 
+# EXP_TEMP<-endo.out_devel1$treg.TLUNG
+# DELTARs<-EXP_TEMP - TAs
 
 #Nat to check feasibility of making DELTAR always vary with predicted TLUNG
 
