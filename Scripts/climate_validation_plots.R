@@ -132,7 +132,7 @@ pred_era5$dmy_hm <- ymd_hms(pred_era5$dates2)
 
 # Join observed and predicted ---------------------------------------------
 
-obs <- lili %>% filter(Vertical == "GROUND") %>% select(Site, date, dmy_hm, Temperature, RH)
+obs <- lili %>% filter(Vertical == "CANOPY") %>% select(Site, date, dmy_hm, Temperature, RH)
 
 pred <- pred_era5 %>% select(site, date, dmy_hm, TAREF, RH)
 

@@ -134,7 +134,7 @@ plot(d$lat_cat, d$lat)
 
 d <- d %>% mutate(weight_contribution = case_when(
   metric == "depth" & area == "dorsal" ~ 0.6,
-  metric == "depth" & area == "head" ~ 0.2,
+  metric == "depth" & area == "head" ~ 0.1,
   metric == "depth" & area ==  "side" ~ 0.3,
   TRUE ~ 1
 ))
