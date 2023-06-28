@@ -736,15 +736,25 @@ endoR_devel_grtp <- function(
           PANT_COST <-
             ((PANT - 1) / (PANT_MAX - 1) * PANT_MULT * QBASREF)
           # increase core temp
+          if(TC < 38.5){
           TC <- TC + TC_INC # TC = 37.28+0.2 = 37.48
-          if (TC > TC_MAX) {
-            TC <- TC_MAX
+          if (TC > 38.5) {
+            TC <- 38.5
+           }
           }
           # Adjust QBASAL for panting and TC
           Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
           QBASAL <- QBASREF * Q10mult + PANT_COST
           
         } else{
+          if(TC < TC_MAX){
+            TC <- TC + TC_INC # TC = 37.28+0.2 = 37.48
+            if (TC > 38.5) {
+              TC <- 38.5
+            }
+            Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
+            QBASAL <- QBASREF * Q10mult + PANT_COST
+          }
           if (PCTWET < PCTWET_MAX) {
             PCTWET <- PCTWET + PCTWET_INC
             if (PCTWET >= PCTWET_MAX) {
