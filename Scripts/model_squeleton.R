@@ -16,9 +16,15 @@ source("Scripts/AF_thermoreg_endoR_devel_grtp_20230621.R") # Updated to latest N
 
 # Sites
 
-sites <- read.csv("Data/data_input/sites_geolocation_possum.csv")
+# sites <- read.csv("Data/data_input/sites_geolocation_possum.csv") # this is for all sites (32)
+# 
+# nsites <- length(unique(sites$site))
 
-nsites <- length(unique(sites$site))
+
+# Run only for Lily's sites for now
+sites <- read.csv("Data/climate/Leahy_Atherton_Carbine_HOBO_2019-21.csv")
+sites <- aggregate(sites[, 6:7], by = list(sites$Site), FUN = max)
+nsites <- length(unique(sites$Group.1))
 
 # Fur data aggregated across species
 
@@ -32,11 +38,7 @@ nspecies <- length(unique(fur$species))
 
 species_id <- unique(fur$species)
 
-####### test for only one species ########
-nspecies <- 1
-species_id <- c("archeri")
-nsites <- 1
-sites <- sites %>% filter(site == "AU10A")
+
 
 ##########################################
 
@@ -67,13 +69,13 @@ for(s in 1:nspecies){ # start loop for each ringtail species
   mass <- sub$mass
   
   
-  SHAPE_B <- 1.1
-  SHAPE_B_MAX <- 6
+  SHAPE_B <- 1.01
+  SHAPE_B_MAX <- 8
   UNCURL <- 0.1
   SHAPE <- 4
-  SAMODE <- 2
+  SAMODE <- 0
   PVEN <- 0.5 # this includes limbs in ventral surface; to obtain the pven without limbs see fur dataset
-  PCOND <- 0
+  PCOND <- 0.07
   
   # Fur properties
   
@@ -90,11 +92,11 @@ for(s in 1:nspecies){ # start loop for each ringtail species
   
   # Physiological responses
   
-  PCTWET <- 0.5
+  PCTWET <- 1.5
   PCTWET_MAX <- 40
   PCTWET_INC <- 0.25
-  PCTBAREVAP <- 5
-  Q10 <- 2 #This is default, but lower than calculated values
+  PCTBAREVAP <- 3
+  Q10 <- 1.5 # 2 is default, but lower than calculated values
   #Q10 <- (255.59/212.35)^(10/(37.99-36.685)) # conversion of metabolic rate to Wats
   #QBASAL <- 2.673611111 # from green ringtail possums
   #DELTAR <- 5 
@@ -103,7 +105,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
   
   EXTREF <- 20 
   PANT_INC <- 0.05 
-  PANT_MAX <- 2
+  PANT_MAX <- 2 # maybe increase this
   PANT_MULT <- 0 
   AK1 <- 0.9
   AK1_MAX<- 2.8
@@ -111,14 +113,14 @@ for(s in 1:nspecies){ # start loop for each ringtail species
   
   # CHECK THIS - Estimate metabolic rate based on allometric relationship
   
-  a <- (231 * 1000 / (24 * 60 * 60))  # borrowed from archeri
-  QBASAL <- a 
+  a <- (231 * 1000 / (24 * 60 * 60)) / mass ^ 0.737 # borrowed from archeri
+  QBASAL <- a * mass ^ 0.737
   
   # Microclimate ------------------------------------------------------------
   
   
   ystart <- 1990
-  yfinish <- 2022
+  yfinish <- 2021
   sim <- FALSE
   
   for(i in 1:nsites){
@@ -140,7 +142,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       load(paste0('model_output/micro_', sites[i, 1], '.Rda'))
     } # conditional loop else close
     
-      metout <- as.data.frame(micro$metout) # extract environmental values
+      metout <- as.data.frame(micro$shadmet) # extract environmental values
       soil <- as.data.frame(micro$shadsoil) # is ground temperature here?
       
       # Keep track of dates
@@ -179,7 +181,8 @@ for(s in 1:nspecies){ # start loop for each ringtail species
         endoR_devel_grtp(
           # ENVIRONMENT
           TA = TAs[x], VEL = VELs[x], RH = RHs[x], TAREF = TAREFs[x], ELEV = ELEV, 
-          TSKY = TSKYs[x], QSOLR = QSOLRs[x], Z = Zs[x], TGRD = TGRDs[x],
+          TSKY = TSKYs[x], QSOLR = QSOLRs[x], Z = Zs[x], TGRD = TGRDs[x], ORIENT = 0, 
+          FABUSH = 0.5, FGDREF = 0, FSKREF = 0.5,
           # CORE TEMPERATURE
           TC = TC, TC_MAX = TC_MAX, TC_INC = TC_INC, 
           # SIZE AND SHAPE
@@ -192,7 +195,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
           PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
           PCTBAREVAP = PCTBAREVAP,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
           Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTARs[x], PANT_INC = PANT_INC,
-          PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, 
+          PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, FATPCT = 10,
           #BEHAVIOUR
           SHADE = 100)
       } # close endoR loop
