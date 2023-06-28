@@ -727,7 +727,7 @@ endoR_devel_grtp <- function(
       } else{
         SHAPE_B <- SHAPE_B_MAX
         PVEN <- (SHAPE_B - 1.1) / (6 - 1.1) * PVEN_REF
-        if ((PANT < PANT_MAX) | (TC < TC_MAX)) {
+        if ((PANT < PANT_MAX) | (TC < 38.5)) {
           # increase panting
           PANT <- PANT + PANT_INC
           if (PANT > PANT_MAX) {
@@ -742,6 +742,7 @@ endoR_devel_grtp <- function(
             TC <- 38.5
            }
           }
+          
           # Adjust QBASAL for panting and TC
           Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
           QBASAL <- QBASREF * Q10mult + PANT_COST
