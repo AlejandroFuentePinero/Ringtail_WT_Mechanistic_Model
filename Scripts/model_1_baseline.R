@@ -150,7 +150,6 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       gmtzone <- ""
       tz <- paste0("Etc/GMT", gmtzone, floor(micro$longlat[1]/15*-1))
       attr(dates, "tzone") <- tz
-      dates2 <- dates + (10 * 3600)
       
       # Extract microclimate variables for the model
       
@@ -208,7 +207,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       # thermoregulation output
       treg <- endo.out_devel1[, grep(pattern = "treg", colnames(endo.out_devel1))]
       colnames(treg) <- gsub(colnames(treg), pattern = "treg.", replacement = "")
-      treg$dates <- dates2
+      treg$dates <- dates
       treg$site <- sites[i,1]
       treg$species <- spp
       write_csv(treg, paste0('model_output/output_model_1_possum/treg_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
@@ -216,7 +215,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       # morphometric output
       morph <- endo.out_devel1[, grep(pattern = "morph", colnames(endo.out_devel1))]
       colnames(morph) <- gsub(colnames(morph), pattern = "morph.", replacement = "")
-      morph$dates <- dates2
+      morph$dates <- dates
       morph$site <- sites[i,1]
       morph$species <- spp
       write_csv(morph, paste0('model_output/output_model_1_possum/morph_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
@@ -224,7 +223,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       # heat balance
       enbal <- endo.out_devel1[, grep(pattern = "enbal", colnames(endo.out_devel1))]
       colnames(enbal) <- gsub(colnames(enbal), pattern = "enbal.", replacement = "")
-      enbal$dates <- dates2
+      enbal$dates <- dates
       enbal$site <- sites[i,1]
       enbal$species <- spp
       write_csv(enbal, paste0('model_output/output_model_1_possum/enbal_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
@@ -232,7 +231,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       # mass aspects
       masbal <- endo.out_devel1[, grep(pattern = "masbal", colnames(endo.out_devel1))]
       colnames(masbal) <- gsub(colnames(masbal), pattern = "masbal.", replacement = "")
-      masbal$dates <- dates2
+      masbal$dates <- dates
       masbal$site <- sites[i,1]
       masbal$species <- spp
       write_csv(masbal, paste0('model_output/output_model_1_possum/masbal_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here

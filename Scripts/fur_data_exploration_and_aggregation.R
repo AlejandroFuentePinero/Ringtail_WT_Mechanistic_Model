@@ -15,7 +15,7 @@ d$date <- dmy(d$date)
 d$year <- year(d$date)
 
 
-d2 <- d[,c(1,2,3,7,8,9,11,26)]
+d2 <- d[,c(1,2,3,7,8,9,11,26,27)]
 
 d2 <- d2[!duplicated(d2),]
 

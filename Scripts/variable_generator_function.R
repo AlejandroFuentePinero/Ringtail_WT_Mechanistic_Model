@@ -7,18 +7,22 @@ library(ISOweek)
 # Cheatsheet
 species <- c("archeri", "cinereus", "lemuroides", "herbertensis")
 prefixes <- c("enbal", "masbal", "morph", "treg")
-sites <- c("AU2", "AU6", "AU10", "CU1", "CU6", "CU12")
-variable_names <- c("TC", "H20", "energy")
+variable_names <- c("TC", "H2O", "energy", "PANT")
+sites_sel <- read.csv("Data/data_input/sites_geolocation_possum.csv") # this is for all sites (32)
+sites_sel <- unique(sites_sel$site)
 
+# Function
 gen_var <- function(species_sel = "archeri",
-                    sites = c("AU2", "AU6", "AU10", "CU1", "CU6", "CU12"),
-                    model = "treg",
-                    variable_name = "TC", # for water just use H2O, the function already does the addition of both
+                    sites = sites_sel, # assuming that your output files are called (for example): enbal_AU2_archeri.csv (model_site_species.csv)
+                    model = "masbal",
+                    variable_name = "H2O", # for water just use H2O, the function already does the addition of both; for Qgen just use the variable name "energy"
                     period = c(48, 168, 504, 720, 2160, 4320, 8760), # in hours for the rolling mean
-                    threshold = 37, # threshold to define stress, here is for TC specifically
+                    threshold = 0.4, # threshold to define stress, here is for TC specifically
                     hour_threshold = 5, # consecutive hours stress
-                    ystart = 2019,
-                    yfinish = 2021,
+                    ystart = 1990,
+                    yfinish = 2022,
+                    output = "output_model_1_possum",
+                    microclimate = "microclimate_possum",
                     week_stress = TRUE,
                     cumulative_stress = TRUE,
                     rolling_average = TRUE,
@@ -27,12 +31,12 @@ gen_var <- function(species_sel = "archeri",
   ### Start of the function
   
   # read files for the specific model out (prefix) and the species of interest
-  file_names <- list.files(path = "model_output/", pattern = paste0("^", model, ".*", species_sel, "\\.csv$"))
+  file_names <- list.files(path = paste0("model_output/", output, "/"), pattern = paste0("^", model, ".*", species_sel, "\\.csv$"))
   datasets <- list()
   
   # Read all sites for the combination of model output and species
   for (file_name in 1:length(file_names)) {
-    dataset <- read.csv(paste0("model_output/", file_names[[file_name]]))
+    dataset <- read.csv(paste0("model_output/", output, "/", file_names[[file_name]]))
     datasets[[file_name]] <- dataset
   }
   
@@ -42,23 +46,33 @@ gen_var <- function(species_sel = "archeri",
   rain_df <- data.frame()
   
   for (i in 1:length(sites)) {
-    load(paste0("model_output/micro_", sites[i], ".Rda"))
+    load(paste0('model_output/', microclimate,'/micro_', sites[i], '_1990_2022.Rda')) # for possum sites
+    #load(paste0('model_output/', microclimate,'/micro_', sites[i], '.Rda')) # for leahy sites
+    
+    # Adjust date ( this won't be needed for future models, as the date is already)
+    dates <- micro$dates
+    gmtzone <- ""
+    tz <- paste0("Etc/GMT", gmtzone, floor(micro$longlat[1]/15*-1))
+    attr(dates, "tzone") <- tz
+    # note that the transformation is not needed here for some reason
+    # the reason is that when saved to csv, the timezone transformation is lost, that is why the output from the previous model is wrong (the date i mean)
+    
     # Met
     met <- as.data.frame(micro$shadmet)
     met$site <- sites[i]
-    met$date <- micro$dates
+    met$date <- dates
     met_df <- rbind(met_df, met)
     # Soil
     soil <- as.data.frame(micro$shadsoil)
     soil$site <- sites[i]
-    soil$date <- micro$dates
-    soil_df <- rbind(soil_df, met)
+    soil$date <- dates
+    soil_df <- rbind(soil_df, soil)
     # Rain
     rain <- tibble(rain = micro$RAINFALL)
     dstart <- as.Date(paste0("01/01/", ystart), format = "%d/%m/%Y")
     dfinish <- as.Date(paste0("31/12/", yfinish), format = "%d/%m/%Y")
-    dates <- seq(dstart, dfinish, by = "day")
-    rain$date <- dates
+    #dates <- seq(dstart, dfinish, by = "day")
+    rain$date <- (micro$dates2)
     rain$doy <- yday(rain$date)
     rain$year <- year(rain$date)
     rain$site <- sites[i]
@@ -68,13 +82,14 @@ gen_var <- function(species_sel = "archeri",
   
   # Compile data selected
   data <- do.call(rbind, datasets)
+  data$dates <- met$date # because I have all sites in a rbind file, so I need this date
   data$year <- as.integer(strftime(data$dates, format = "%Y"))
   data$week <- as.integer(strftime(data$dates, format = "%V"))
 
   # Conditional variation of certain parameters
   
-  if(variable_name == "H20"){
-    data$H20 <- (data$H2OResp_g + data$H2OCut_g)
+  if(variable_name == "H2O"){
+    data$H2O <- (data$H2OResp_g + data$H2OCut_g)
   }
   
   if(variable_name == "energy"){
@@ -123,15 +138,15 @@ gen_var <- function(species_sel = "archeri",
   if (week_stress) { # this computes something similar to the Degree Heating Week. where we calculated the intensity of values above the threshold on a given week (on average)
     # Threshold
     
-    # Calculate the weekly mean temperature for each site
-    weekly_mean <- data %>%
-      group_by(site, year, week) %>%
-      summarise(max_var = max(!!sym(variable_name), na.rm = TRUE)) # maximum stress during the week to calculate the relative stress compared to long-term average
-    
     # Calculate the DHW values relative to the threshold for each site and week
-    week_stress <- weekly_mean %>%
-      group_by(site, year, week) %>%
-      mutate(dhw = cumsum(pmax(max_var - threshold, 0))) # only positive anomalies with pmax (so values above threshold)
+    week_stress <- data %>%
+      group_by(site, year) %>%
+      mutate(stress = case_when(
+        !!sym(variable_name) > threshold ~ (!!sym(variable_name) - threshold),
+        TRUE ~ 0
+      )) %>% 
+      mutate(cumulative_7_days = (rollmeanr(stress, k = period[[2]], fill = NA)) * period[[2]]) %>% 
+      ungroup() 
     
 
   }
@@ -170,7 +185,6 @@ gen_var <- function(species_sel = "archeri",
 
   return(list(
     week_stress_df = week_stress,
-    weekly_mean = weekly_mean,
     cumulative_stress_df = cumulative_df,
     rollmean_stress_df = rollmean_df,
     microclimate_df = met_df,
@@ -187,7 +201,8 @@ gen_var <- function(species_sel = "archeri",
     hour_threshold = hour_threshold,
     ystart = ystart,
     yfinish = yfinish,
-    combination = combinations
+    combination = combinations,
+    output = output
   ))
 
 }
@@ -197,24 +212,47 @@ gen_var <- function(species_sel = "archeri",
 
 out <- gen_var()
 
-out$full_data %>% ggplot(aes(x = dates, y = TC))+
-  geom_point()+
-  geom_hline(yintercept = 37, col = "red", linewidth = 1)+
-  facet_wrap(~site)
+out$microclimate_df$hour <- hour(out$microclimate_df$date)
 
-# view(out$hour_stress_df)
-# view(out$week_stress_df)
-# view(out$rain_df)
-# view(out$combination)
-# view(out$full_data)
+out$microclimate_df[1:24,] %>% ggplot(aes(hour, SOLR))+
+  geom_point()
 
-out$rain_df %>% ggplot(aes(date, rain))+
-  geom_point(size = 2)+
-  facet_wrap(~site)
+head(out$hour_stress_df)
+head(out$week_stress_df)
+head(out$rain_df)
+head(out$combination)
+head(out$full_data)
+head(out$cumulative_stress_df)
+head(out$rollmean_stress_df)
+head(out$microclimate_df)
+head(out$soil_df)
 
 out$hour_stress_df %>% group_by(site, year) %>% summarise(sum = sum(events_per_week))
 
-sum(is.na(unique(out$full_data$dates)))
-sum(is.na(unique(out$full_data$week)))
-sum(is.na(unique(out$full_data$year)))
+#save.image(paste0("model_output/",out$species_sel,"_", out$output,"_",out$model,"_",out$variable_name,".RData"))
 
+
+
+# Climate change - temperature - plot -------------------------------------
+# 
+# met <- out$microclimate_df
+# 
+# met$year <- year(met$date)
+# 
+# met$month <- month(met$date)
+# 
+# met2 <- met %>% group_by(site, year, month) %>% 
+#   summarise(TAREF = mean(TAREF, na.rm = T)) %>% 
+#   arrange(site, year, month) %>% ungroup() %>% 
+#   group_by(site) %>% mutate(roll = rollmeanr(TAREF, k = 36, fill = NA)) # 3 years window average
+# 
+# mat <- met %>% group_by(year, site) %>% summarise(mat = mean(TAREF, na.rm = T))
+# 
+# 
+# met2 %>% 
+#   ggplot(aes(year, roll))+
+#   geom_point(shape = 21, stroke = 1)+
+#   geom_line(data = mat, aes(year, mat), col = "red")+
+#   geom_smooth()+
+#   facet_wrap(~site, scales = "free")+
+#   theme_classic()

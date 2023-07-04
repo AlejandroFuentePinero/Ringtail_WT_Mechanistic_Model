@@ -721,6 +721,7 @@ endoR_devel_grtp <- function(
         AK1[AK1 > AK1_MAX] <-
           AK1_MAX #Add check so don't overshoot
         TC <- TC + TC_INC
+        TC[TC > (TC_MAX - 3.5)] <- (TC_MAX - 3.5) #Add check so don't overshoot        
         Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
         QBASAL <- QBASREF * Q10mult 
       } #else{
