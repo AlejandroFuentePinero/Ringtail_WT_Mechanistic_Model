@@ -17,8 +17,8 @@ library(patchwork)
 
 # Custom function ---------------------------------------------------------
 
-#source("Scripts/endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version
-source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR version with thermoreg happening simultaneously until panting
+source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR version
+#source("Scripts/AF_thermoreg_endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version with thermoreg happening simultaneously until panting
 
 # Load data ---------------------------------------------------------------
 
@@ -191,7 +191,7 @@ FURTHRMK <- 0.049 # weighted average of measured values at 0m/s: 0.5 * dorsal, 0
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 1.5 # (CHECK) base skin wetness (%) (10% of the maximum?)
+PCTWET <- 1.5 # (CHECK) base skin wetness (%) (10% of the maximum?) ###!!!!!### I changed this from 1.5 -> 1.7
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
@@ -216,7 +216,7 @@ DELTARs <- rep(5,length(TAs)) # (DEFAULT) offset between air temperature and bre
 
 EXTREF <- 20 # (DEFAULT) O2 extraction efficiency (%)
 PANT_INC <- 0.05 # (DEFAULT) turns on panting, the value being the increment by which the panting multiplier is increased up to the maximum value, PANT_MAX
-PANT_MAX <- fur[[36,6]] # maximum panting rate - multiplier on air flow through the lungs above that determined by metabolic rate
+PANT_MAX <- 3 # maximum panting rate - multiplier on air flow through the lungs above that determined by metabolic rate ###!!!!!### I changed this to +2
 PANT_MULT <- 0 # (DEFAULT) multiplier on basal metabolic rate at maximum panting level
 AK1 <- fur[[43,6]]
 AK1_MAX<- fur[[45,6]]
@@ -344,11 +344,10 @@ ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
         legend.position = "none")
 
 bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
-    geom_point(aes(size = source),shape = 21, stroke = 2)+
+    geom_point(shape = 21, stroke = 2)+
     #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
     labs(x = "Ambient temperature (°C)", y = "Body temperature (°C)", col = "Source", size = "Source")+
     scale_color_manual(values = c("black", "red"))+
-    scale_size_manual(values = c(1, 2.5))+
     theme_classic()+
     theme(axis.title = element_text(size = 16),
           axis.text = element_text(size = 12, colour = "black"),
