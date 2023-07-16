@@ -170,7 +170,8 @@ SHAPE_B <- fur[[39,6]] # start off near to a sphere (-)
 SHAPE_B_MAX <- fur[[40,6]] # maximum ratio of length to width/depth
 UNCURL <- 0.1 # (DEFAULT) allows the animal to uncurl to SHAPE_B_MAX, the value being the increment SHAPE_B is increased per iteration
 SHAPE <- 4 # (DEFAULT) use ellipsoid geometry
-SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
+#SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
+SAMODE <- 0 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
 PVEN <- fur_all[[1,6]]
 PVEN <- 0.5 #Adjust to incorporate limbs in ventral surface - need to update fur properties to capture this
 PCOND <- 0.07 #Ask Andrew
@@ -315,17 +316,21 @@ obs <- tibble(source = "Krock",
               air_t = TAs)
 
 comp <- rbind(pred, obs)
+comp$spp <- "archeri"
+#write.csv(comp, "Data/data_input/archeri_chamber_pred.csv")
+
 
 mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
   #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
-  labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source")+
+  labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source", title = "Green Ringtail Possum")+
   scale_color_manual(values = c("black", "red"))+
   theme_classic()+
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
+        title = element_text(size = 20),
       legend.position = "none")
 
 
@@ -368,5 +373,4 @@ mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
 
 out <- (mt_comp + ewl_comp) / (bt_comp + mv_comp)
 out
-#ggsave(filename = "1_2_1.png", path = "/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model//Results/metabolic_chamber_results/custom_endoR_pven_no_full_thermoreg_seq")
 

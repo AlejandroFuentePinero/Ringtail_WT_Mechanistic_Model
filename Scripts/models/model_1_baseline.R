@@ -9,7 +9,6 @@ library(tidyverse)
 # EndoR function for possums ----------------------------------------------
 
 source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR version
-#source("Scripts/AF_thermoreg_endoR_devel_grtp_20230621.R") # Updated to latest NicheMapR version with thermoreg happening simultaneously until panting
 
 
 # Datasets ----------------------------------------------------------------
@@ -18,6 +17,7 @@ source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR v
 
 sites <- read.csv("Data/data_input/sites_geolocation_possum.csv") # this is for all sites (32)
 nsites <- length(unique(sites$site))
+adjust <- read.csv("Data/data_input/micro_test.csv") # adjustments for microclimate based on model validation
 
 
 # Run only for Lily's sites for now
@@ -31,12 +31,11 @@ fur <- read.csv("Data/data_input/fur_data_all_species.csv")
 
 # Select Wet Tropics species and adult individuals
 
-fur <- fur %>% dplyr::filter(species != "peregrinus") %>% dplyr::filter(age == "adult")
+fur <- fur %>% dplyr::filter(species == "archeri") %>% dplyr::filter(age == "adult") # now is modelling only archeri
 
 nspecies <- length(unique(fur$species))
 
 species_id <- unique(fur$species)
-
 
 
 ##########################################
@@ -66,7 +65,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
   
   sub <- subset(AMASSs[AMASSs$species == spp,]) # filter the mass dataset for the species selected in the loop iteration
   mass <- sub$mass
-  
+  mass <- 1.17 # archeri only for now
   
   SHAPE_B <- 1.01
   SHAPE_B_MAX <- 8
@@ -143,6 +142,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
     } # conditional loop else close
     
       shademet <- as.data.frame(micro$shadmet) # extract environmental values
+      shademet$site <- sites[i,1]
       soil <- as.data.frame(micro$shadsoil) # is ground temperature here?
       
       # Keep track of dates
@@ -151,40 +151,55 @@ for(s in 1:nspecies){ # start loop for each ringtail species
       tz <- paste0("Etc/GMT", gmtzone, floor(micro$longlat[1]/15*-1))
       attr(dates, "tzone") <- tz
       
+      shademet$dates <- dates
+      
+      # microclimate adjustment based on Storlei's MAT (IMPORTANT - CHECK !!!!!!!!!!!!!)
+      
+      adjust <- adjust %>% dplyr::select(site, max_adj, min_adj)
+      
+      micro_ad <- left_join(shademet, adjust)
+      
+      shademet2 <- micro_ad %>%
+        mutate(dates = as.POSIXct(dates, format = "%Y-%m-%d %H:%M:%S"),  # Convert date to POSIXct format
+               hour_of_day = hour(dates),  # Extract the hour from the date
+               TAREF_2 = ifelse(hour_of_day >= 8 & hour_of_day < 20, TAREF - max_adj, TAREF - min_adj),
+               TSKYC_2 = ifelse(hour_of_day >= 8 & hour_of_day < 20, TSKYC - max_adj, TSKYC - min_adj))
+      
       # Extract microclimate variables for the model
-      
-      TAs <- shademet$TAREF # air temperature at local height (°C)
-      TAREFs <- shademet$TAREF # air temperature at reference height (°C)          
-      TGRDs = shademet$TAREF # ground temperature (°C) assuming relevant tlower = vegetation at airtemp
-      TSKYs = shademet$TSKYC # sky temperature (°C)
-      QSOLRs = shademet$SOLR # solar radiation, horizontal plane (W/m2)
-      Zs = shademet$ZEN # zenith angle of sun (degrees from overhead)
+
+      TAs <- shademet2$TAREF_2 # air temperature at local height (°C)
+      TAREFs <- shademet2$TAREF_2 # air temperature at reference height (°C)
+      TGRDs = shademet2$TAREF_2 # ground temperature (°C) assuming relevant tlower = vegetation at airtemp
+      TSKYs = shademet2$TSKYC_2 # sky temperature (°C)
+      QSOLRs = shademet2$SOLR # solar radiation, horizontal plane (W/m2)
+      Zs = shademet2$ZEN # zenith angle of sun (degrees from overhead)
       ELEV = micro$elev # elevation (m)
-      ABSSB = 0.8 # solar absorptivity of substrate (fractional, 0-1)           # (CHECK THIS)
-      RHs <- shademet$RH # relative humidity (%)
-      VELs <- shademet$VREF # wind speed (m/s)
-      
-      
-      
+      ABSSB = 0.9 # solar absorptivity of substrate (fractional, 0-1)           # (CHECK THIS)
+      RHs <- shademet2$RH # relative humidity (%)
+      VELs <- shademet2$VREF # wind speed (m/s)
+
+      # change shade scenario here
+      SHADE = 100
+
       ###!!!!#### here is the physiological element because it needs the TAs
       #Also check setting this based on observed relationship in GGs
       EXP_TEMP <- 0.76*TAs + 11.6 # at 10-25deg, exp = 0.76*TA - 11.6, 25-40 = 0.35x + 21.25
       EXP_TEMP[TAs>=25] <- 0.35 * TAs[TAs>=25] + 21.35
       DELTARs <- EXP_TEMP - TAs
       #####!!!!!!#####
-      
-      
-      
+
+
+
       # ENDOR
-      
+
       endo.out_devel_run1 <- lapply(1:length(TAs), function(x) { # run endoR per site
         endoR_devel_grtp(
           # ENVIRONMENT
-          TA = TAs[x], VEL = VELs[x], RH = RHs[x], ELEV = ELEV, 
-          TSKY = TSKYs[x], QSOLR = QSOLRs[x], Z = Zs[x], TGRD = TGRDs[x], ORIENT = 0, 
+          TA = TAs[x], VEL = VELs[x], RH = RHs[x], ELEV = ELEV,
+          TSKY = TSKYs[x], QSOLR = QSOLRs[x], Z = Zs[x], TGRD = TGRDs[x], ORIENT = 0,
           FGDREF = 0.5, FSKREF = 0.5,
           # CORE TEMPERATURE
-          TC = TC, TC_MAX = TC_MAX, TC_INC = TC_INC, 
+          TC = TC, TC_MAX = TC_MAX, TC_INC = TC_INC,
           # SIZE AND SHAPE
           AMASS = mass, SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
           UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,
@@ -196,45 +211,49 @@ for(s in 1:nspecies){ # start loop for each ringtail species
           PCTBAREVAP = PCTBAREVAP,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
           Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTARs[x], PANT_INC = PANT_INC,
           PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, FATPCT = 10,
+          PDIF = 1, ABSSB = ABSSB,
           #BEHAVIOUR
-          SHADE = 90)
+          SHADE = SHADE)
       } # close endoR loop
       ) # run endoR across environments
-      
+
       # extract the output
       endo.out_devel1 <- do.call("rbind", lapply(endo.out_devel_run1, data.frame))
-      
+
       # thermoregulation output
       treg <- endo.out_devel1[, grep(pattern = "treg", colnames(endo.out_devel1))]
       colnames(treg) <- gsub(colnames(treg), pattern = "treg.", replacement = "")
       treg$dates <- dates
       treg$site <- sites[i,1]
       treg$species <- spp
-      write_csv(treg, paste0('model_output/output_model_1_possum/treg_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
-      
+      write_csv(treg, paste0('model_output/output_model_1_possum/',spp,'/treg_', sites[i, 1],"_", spp,'.csv')) # save output ####!!!!!!!##### modify path here
+
       # morphometric output
       morph <- endo.out_devel1[, grep(pattern = "morph", colnames(endo.out_devel1))]
       colnames(morph) <- gsub(colnames(morph), pattern = "morph.", replacement = "")
       morph$dates <- dates
       morph$site <- sites[i,1]
       morph$species <- spp
-      write_csv(morph, paste0('model_output/output_model_1_possum/morph_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
-      
+      write_csv(morph, paste0('model_output/output_model_1_possum/',spp,'/morph_', sites[i, 1],"_", spp,'.csv')) # save output ####!!!!!!!##### modify path here
+
       # heat balance
       enbal <- endo.out_devel1[, grep(pattern = "enbal", colnames(endo.out_devel1))]
       colnames(enbal) <- gsub(colnames(enbal), pattern = "enbal.", replacement = "")
       enbal$dates <- dates
       enbal$site <- sites[i,1]
       enbal$species <- spp
-      write_csv(enbal, paste0('model_output/output_model_1_possum/enbal_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
-      
+      write_csv(enbal, paste0('model_output/output_model_1_possum/',spp,'/enbal_', sites[i, 1],"_", spp,'.csv'))# save output ####!!!!!!!##### modify path here
+
       # mass aspects
       masbal <- endo.out_devel1[, grep(pattern = "masbal", colnames(endo.out_devel1))]
       colnames(masbal) <- gsub(colnames(masbal), pattern = "masbal.", replacement = "")
       masbal$dates <- dates
       masbal$site <- sites[i,1]
       masbal$species <- spp
-      write_csv(masbal, paste0('model_output/output_model_1_possum/masbal_', sites[i, 1],"_", spp, '.csv')) # save output ####!!!!!!!##### modify path here
+      write_csv(masbal, paste0('model_output/output_model_1_possum/',spp,'/masbal_', sites[i, 1],"_", spp,'.csv')) # save output ####!!!!!!!##### modify path here
+
+      # microclimate
+      write_csv(shademet2, paste0('model_output/output_model_1_possum/',spp,'/micro_', sites[i, 1],'.csv')) # save output ####!!!!!!!##### modify path here
       
   } # sites loop closes
 } # species loop close

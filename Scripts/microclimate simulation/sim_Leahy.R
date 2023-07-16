@@ -2,9 +2,8 @@ library(NicheMapR)
 library(scales)
 
 
-setwd("/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model/Data/climate")
 
-obs <- read.csv('Leahy_Atherton_Carbine_HOBO_2019-21.csv')
+obs <- read.csv('Data/climate/Leahy_Atherton_Carbine_HOBO_2019-21.csv')
 sites <- aggregate(obs[, 6:7], by = list(obs$Site), FUN = max)
 obs$datetime <- as.POSIXct(obs$Date.Time, format = "%d/%m/%Y %H:%M")
 obs <- obs[order(obs$datetime), ]
@@ -25,7 +24,7 @@ for(i in 1:nrow(sites)){
     micro <- micro_era5(loc = loc, dstart = paste0('01/01/', ystart), dfinish = paste0('31/12/', yfinish), spatial = 'C:/Spatial_Data/ERA5_Australia/ERA5')
     save(micro, file = paste0('micro_', sites[i, 1], '.Rda'))
   }else{
-    load(paste0('micro_', sites[i, 1], '.Rda'))
+    load(paste0('model_output/microclimate_leahy/micro_', sites[i, 1], '.Rda'))
   }
 
   metout <- as.data.frame(micro$metout)
@@ -51,7 +50,7 @@ for(i in 1:nrow(sites)){
   ecto <- ectotherm(minshades = rep(80, length(RAINFALL)), pct_wet = pct_wet, live = 0)
   environ <- as.data.frame(ecto$environ)
   plot(dates[sub], metout$TAREF[sub], type = 'l', ylim = c(0, 45))
-  points(dates, environ$TC, type = 'l', col = alpha('blue', 0.5))
+  #points(dates, environ$TC, type = 'l', col = alpha('blue', 0.5))
   points(to_plot$datetime, to_plot$Temperature, type = 'l', col = alpha('red', 0.5))
   points(micro$dates2, micro$RAINFALL/10, type = 'h', col = 'grey')
   plot(dates[sub], metout$RH[sub], type = 'l', ylim = c(0, 100))

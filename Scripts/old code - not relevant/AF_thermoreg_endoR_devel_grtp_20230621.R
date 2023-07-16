@@ -737,10 +737,10 @@ endoR_devel_grtp <- function(
             ((PANT - 1) / (PANT_MAX - 1) * PANT_MULT * QBASREF)
           # increase core temp
           if(TC < 38.5){
-          TC <- TC + TC_INC # TC = 37.28+0.2 = 37.48
-          if (TC > 38.5) {
-            TC <- 38.5
-           }
+            TC <- TC + TC_INC # TC = 37.28+0.2 = 37.48
+            if (TC > 38.5) {
+              TC <- 38.5
+            }
           }
           
           # Adjust QBASAL for panting and TC

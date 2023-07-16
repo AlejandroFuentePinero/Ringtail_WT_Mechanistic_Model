@@ -25,6 +25,9 @@ source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR v
 krock <- read_csv("Data/data_input/lemuroid_chamber.csv")
 fur_all<-read_csv("Data/data_input/fur_data_all_species.csv")
 
+krock$met_w <- ((((krock$`Vo2 (ml/g/min)`) / 1000 * (krock$`Body weight`) * 60) / 3600)*19.8)*1000 # conversion from ml/g/min to liter/hour
+# then to KJ/h by multiplying by 19.8 (krockenberger 2012) convert to watts by multiplying by 10000
+
 # Environment -------------------------------------------------------------
 
 TAs <- krock$`Chamber temp`
@@ -68,6 +71,10 @@ ZFURD <- 0.016754175 # fur depth, dorsal (m)
 ZFURV <- 0.004909167 # fur depth, ventral (m)  
 RHOD <- 85992877.89 # borrowed from archeri
 RHOV <- 51392321.53 # borrowed from archeri
+RHOD <- 55992877.89 # ~ Koala
+RHOV <- 31392321.53 # ~ Koala
+# RHOD <- 12000 * 10000 # GG Kearney et al 2010
+# RHOV <- 13000 * 10000 # GG Kearney et al 2010
 REFLD <- 0.383 # borrowed from koala (NSW)
 REFLV <- 0.523  # borrowed from koala (NSW)
 
@@ -91,10 +98,6 @@ AK1_INC<- 0.1
 ABSSB = 0.9 # solar absorptivity of substrate (fractional, 0-1)           # (CHECK THIS)
 
 
-# CHECK THIS - Estimate metabolic rate based on allometric relationship
-
-a <- (231 * 1000 / (24 * 60 * 60)) / AMASS ^ 0.737 # borrowed from archeri
-QBASAL <- a * AMASS ^ 0.737
 
 ###!!!!#### here is the physiological element because it needs the TAs
 #Also check setting this based on observed relationship in GGs
@@ -113,6 +116,11 @@ DELTARs <- EXP_TEMP - TAs
 
 AMASSs<- (krock$`Body weight`)/1000
 
+thermo_w <- mean(krock$met_w[krock$Temperature > 24 & krock$Temperature < 32]) # calculation of metabolic rate at the thermoneutral zone
+
+#a <- (thermo_w) / (mean(krock$`Body weight`)/1000) ^ 0.737 # borrowed from archeri
+a <- (thermo_w) / 0.95 ^ 0.737 # borrowed from archeri
+QBASALs <- a * AMASSs ^ 0.737
 
 # Run end Or ---------------------------------------------------------------
 
@@ -125,7 +133,7 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
     FGDREF = 0.5, FSKREF = 0.5,
     # CORE TEMPERATURE
     #TC = TCs[x], TC_MAX = TCs[x], TC_INC = TC_INC, # OPTION 1: TC PER OBSERVATION
-    TC = mean(krock$`Possum temp`, na.rm = T), TC_MAX = 40.8, TC_INC = 0.02, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
+    TC = 37.37, TC_MAX = 40.8, TC_INC = 0.02, # OPTION 2: AVERAGE TC; TC_MAX = 40.8 (KROCKENBERGER ET AL 2012)
     # SIZE AND SHAPE
     AMASS = AMASSs[x], SHAPE = SHAPE, SHAPE_B = SHAPE_B, SHAPE_B_MAX = SHAPE_B_MAX,
     UNCURL = UNCURL, SAMODE = SAMODE, PVEN = PVEN,FATPCT = 10,
@@ -136,7 +144,7 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
     # PHYSIOLOGICAL RESPONSES
     PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
     PCTBAREVAP = PCTBAREVAP,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
-    Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTARs[x], PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
+    Q10 = Q10, QBASAL = QBASALs[x], DELTAR = DELTARs[x], PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
     #Q10 = fur[[42,6]], QBASAL = QBASAL, DELTAR = DELTAR, PANT_INC = PANT_INC, # OPTION 2: Q10 WITH THE CHANGE IN MET. RATE BETWEEN 30-35 DEG C.
     PCOND = PCOND, PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, SHADE = 100)
 }) # run endoR across environments
@@ -171,12 +179,13 @@ TskinD <- treg$TSKIN_D # dorsal skin temperature
 TskinV <- treg$TSKIN_V # ventral skin temperature
 TCs <- treg$TC # core temperature
 MV <- (masbal$AIR_L) / 60 * 1000 # l/h
+vo2 <- masbal$O2_L
 
 # Observed
 
 obs_TCs <- krock$`Possum temp` # evaporative water loss
 #obs_QGEN <- ((1000) * (krock$`RMR kJ/d`) / (24*60*60)) # metabolic rate
-obs_H2O <- (krock$`Ewl (ml/g/min)`)*0.06*1000 # body temperature
+obs_H2O <- (krock$`Ewl (ml/g/min)`)*60 # is this transformation correct?
 
 # Comparison plos ---------------------------------------------------------
 
@@ -186,28 +195,37 @@ pred <- tibble(source = "NicheMapR",
                tc = TCs,
                mv = MV,
                air_t = TAs)
+
+
+
+
 obs <- tibble(source = "Krock",
-              met_rate = NA,
+              met_rate = krock$met_w,
               evap_water_loss = obs_H2O,
               tc = obs_TCs,
               mv = NA,
               air_t = TAs)
 
 comp <- rbind(pred, obs)
+comp$spp <- "lemuroides"
+comp_green <- read.csv("Data/data_input/archeri_chamber_pred.csv")
 
+comp <- rbind(comp, comp_green[,-1])
 
+comp <- comp %>% filter(spp == "lemuroides")
 
 mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
   #geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F)+
-  labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source")+
+  labs(x = "Ambient temperature (°C)", y = "Metabolic rate (W)", col = "Source", title = "Lemuroid Ringtail Possum")+
   scale_color_manual(values = c("black", "red"))+
   theme_classic()+
   theme(axis.title = element_text(size = 16),
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
-        legend.position = "none")
+        title = element_text(size = 20),
+        legend.position = "none")#+facet_wrap(~spp)
 
 
 ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
@@ -220,7 +238,7 @@ ewl_comp <- comp %>% ggplot(aes(x = air_t, y = evap_water_loss, col = source))+
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14), 
-        legend.position = "none")
+        legend.position = "none")#+facet_wrap(~spp)
 
 bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
   geom_point(shape = 21, stroke = 2)+
@@ -232,7 +250,7 @@ bt_comp <- comp %>% ggplot(aes(x = air_t, y = tc, col = source))+
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14), 
-        legend.position = "none")
+        legend.position = "none")#+facet_wrap(~spp)
 
 mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
   geom_point(size = 1, shape = 21, stroke = 2)+
@@ -244,7 +262,7 @@ mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14), 
-        legend.position = "none")
+        legend.position = "none")#+facet_wrap(~spp)
 
 
 out <- (mt_comp + ewl_comp) / (bt_comp + mv_comp)

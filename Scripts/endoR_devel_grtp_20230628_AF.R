@@ -751,19 +751,22 @@ endoR_devel_grtp <- function(
           Q10mult <- Q10 ^ ((TC - TC_REF) / 10)
           QBASAL <- QBASREF * Q10mult + PANT_COST
           
-        } else{
-          if (PCTWET < PCTWET_MAX) {
+        } #else{
+          if (PCTWET < PCTWET_MAX & TC > 39) {
             PCTWET <- PCTWET + PCTWET_INC
             if (PCTWET >= PCTWET_MAX) {
               PCTWET = PCTWET_MAX
-              failed <- TRUE
+              #failed <- TRUE
+              break
             }
           }
-          break
-        }
+          #break
+        #}
       }
       #}
       #}
+    }else{
+      break
     }
   }
   
@@ -806,7 +809,7 @@ endoR_devel_grtp <- function(
   #     break
   #   }
   # }
-  
+  # 
   
   # SIMULSOL output, dorsal
   TFA.D <- SIMULSOL.out[1, 1] # temperature of feathers/fur-air interface, deg C

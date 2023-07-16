@@ -160,7 +160,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
     QSOLRs = shademet$SOLR # solar radiation, horizontal plane (W/m2)
     Zs = shademet$ZEN # zenith angle of sun (degrees from overhead)
     ELEV = micro$elev # elevation (m)
-    ABSSB = 0.8 # solar absorptivity of substrate (fractional, 0-1)           # (CHECK THIS)
+    ABSSB = 0.9 # solar absorptivity of substrate (fractional, 0-1)           # (CHECK THIS)
     RHs <- shademet$RH # relative humidity (%)
     VELs <- shademet$VREF # wind speed (m/s)
     
@@ -196,6 +196,7 @@ for(s in 1:nspecies){ # start loop for each ringtail species
         PCTBAREVAP = PCTBAREVAP,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
         Q10 = Q10, QBASAL = QBASAL, DELTAR = DELTARs[x], PANT_INC = PANT_INC,
         PANT_MAX = PANT_MAX, EXTREF = EXTREF,   PANT_MULT = PANT_MULT, FATPCT = 10,
+        PDIF = 1, ABSSB = ABSSB, # CHECK THIS!!
         #BEHAVIOUR
         SHADE = 30)
     } # close endoR loop
