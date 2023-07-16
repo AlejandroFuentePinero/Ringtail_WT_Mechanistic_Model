@@ -188,6 +188,7 @@ RHOD <- fur[[16,6]] # hair density, dorsal (1/m2)
 RHOV <- fur[[19,6]] # hair density, ventral (1/m2)
 REFLD <- 0.248 # (DEFAULT) fur reflectivity dorsal (fractional, 0-1)
 REFLV <- 0.351 # (DEFAULT) fur reflectivity ventral (fractional, 0-1)
+FURTHRMK <- 0.049 # weighted average of measured values at 0m/s: 0.5 * dorsal, 0.25 * belly, 0.25 * flank
 
 # Physiological responses -------------------------------------------------
 
@@ -254,7 +255,8 @@ endo.out_devel_run1 <- lapply(1:length(TAs), function(x) {
         # FUR PROPERTIES
         DHAIRV = DHAIRV, LHAIRD = LHAIRD, LHAIRV = LHAIRV, ZFURD = ZFURD,
         ZFURV = ZFURV, RHOD = RHOD, RHOV = RHOV, REFLD = REFLD, DHAIRD = DHAIRD,
-        # PHYSIOLOGICAL RESPONSES
+        #FURTHRMK = FURTHRMK, #Turn on if want to use measured value
+         # PHYSIOLOGICAL RESPONSES
         PCTWET = PCTWET, PCTWET_INC = PCTWET_INC, PCTWET_MAX = PCTWET_MAX,
         PCTBAREVAP = 5,  AK1 = AK1, AK1_INC = AK1_INC, AK1_MAX = AK1_MAX,
         Q10 = Q10, QBASAL = QBASALs[x], DELTAR = DELTARs[x], PANT_INC = PANT_INC, # OPTION 1: Q10 PER OBSERVATION
