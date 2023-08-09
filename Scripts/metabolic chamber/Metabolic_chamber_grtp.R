@@ -24,7 +24,7 @@ source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR v
 
 krock <- read_csv("Data/data_input/chamber_grtp.csv")
 fur <- read_csv("Data/data_input/fur_dataset.csv")
-fur_all<-read_csv("Data/data_input/fur_data_all_species.csv")
+fur_all<-read_csv("Data/data_input/fur_data_all_species_updated.csv")
 
 # Plots from Krockenberger et al. 2012 ------------------------------------
 
@@ -166,14 +166,14 @@ TC_INC <- 0
 # Size and shape ----------------------------------------------------------
 
 AMASS <- fur[[25,6]] # mass (kg) from Krockenberger et al. 2012
-SHAPE_B <- fur[[39,6]] # start off near to a sphere (-)
+SHAPE_B <- 1.01 # start off near to a sphere (-)
 SHAPE_B_MAX <- fur[[40,6]] # maximum ratio of length to width/depth
 UNCURL <- 0.1 # (DEFAULT) allows the animal to uncurl to SHAPE_B_MAX, the value being the increment SHAPE_B is increased per iteration
-SHAPE <- 4 # (DEFAULT) use ellipsoid geometry
+SHAPE <- 1 # (DEFAULT) use ellipsoid geometry
 #SAMODE <- 2 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
 SAMODE <- 0 # (DEFAULT) (2 is mammal, 0 is based on shape specified in GEOM)
 PVEN <- fur_all[[1,6]]
-PVEN <- 0.5 #Adjust to incorporate limbs in ventral surface - need to update fur properties to capture this
+PVEN <- 0.4 #Adjust to incorporate limbs in ventral surface - need to update fur properties to capture this
 PCOND <- 0.07 #Ask Andrew
 
 # Fur properties ----------------------------------------------------------
@@ -192,7 +192,7 @@ FURTHRMK <- 0.049 # weighted average of measured values at 0m/s: 0.5 * dorsal, 0
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 1.5 # (CHECK) base skin wetness (%) (10% of the maximum?) ###!!!!!### I changed this from 1.5 -> 1.7
+PCTWET <- 3 # (CHECK) base skin wetness (%) (10% of the maximum?) ###!!!!!### I changed this from 1.5 -> 1.7
 PCTWET_MAX <- fur[[37,6]] # maximum skin wetness (%)
 PCTWET_INC <- 0.25 # (DEFAULT) intervals by which skin wetness is increased (%)  
 PCTBAREVAP <- fur[[38,6]]
@@ -332,7 +332,7 @@ mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
-        title = element_text(size = 20),
+        title = element_text(size = 14),
       legend.position = "none")
 
 
@@ -375,4 +375,3 @@ mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
 
 out <- (mt_comp + ewl_comp) / (bt_comp + mv_comp)
 out
-

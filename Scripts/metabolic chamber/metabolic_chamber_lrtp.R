@@ -23,7 +23,7 @@ source("Scripts/endoR_devel_grtp_20230628_AF.R") # Updated to latest NicheMapR v
 # Load data ---------------------------------------------------------------
 
 krock <- read_csv("Data/data_input/lemuroid_chamber.csv")
-fur_all<-read_csv("Data/data_input/fur_data_all_species.csv")
+fur_all<-read_csv("Data/data_input/fur_data_all_species_updated.csv")
 
 krock$met_w <- ((((krock$`Vo2 (ml/g/min)`) / 1000 * (krock$`Body weight`) * 60) / 3600)*19.8)*1000 # conversion from ml/g/min to liter/hour
 # then to KJ/h by multiplying by 19.8 (krockenberger 2012) convert to watts by multiplying by 10000
@@ -53,10 +53,10 @@ TC_MAXs <- TCs
 TC_INC <- 0
 
 # Size and shape ----------------------------------------------------------
-SHAPE_B <- 1.01
+SHAPE_B <- 1.1
 SHAPE_B_MAX <- 8
 UNCURL <- 0.1
-SHAPE <- 4
+SHAPE <- 1
 SAMODE <- 0 # try 2
 PVEN <- 0.5 # this includes limbs in ventral surface; to obtain the pven without limbs see fur dataset
 PCOND <- 0.07
@@ -65,7 +65,8 @@ PCOND <- 0.07
 
 DHAIRD <- 9.93E-06 # hair diameter, dorsal (m)
 DHAIRV <- 9.43E-06 # hair diameter, ventral (m)
-LHAIRD <- 0.02792025 # hair length, dorsal (m)
+#LHAIRD <- 0.02792025 # hair length, dorsal (m)
+LHAIRD <- 0.0246930625 # updated
 LHAIRV <- 0.0149395 # hair length, ventral (m)
 ZFURD <- 0.016754175 # fur depth, dorsal (m)
 ZFURV <- 0.004909167 # fur depth, ventral (m)  
@@ -80,7 +81,7 @@ REFLV <- 0.523  # borrowed from koala (NSW)
 
 # Physiological responses -------------------------------------------------
 
-PCTWET <- 1.5
+PCTWET <- 1
 PCTWET_MAX <- 40
 PCTWET_INC <- 0.25
 PCTBAREVAP <- 3
@@ -90,14 +91,12 @@ Q10 <- 1.5 # 2 is default, but lower than calculated values
 
 EXTREF <- 20 
 PANT_INC <-  0.05
-PANT_MAX <- 3 # before was 2
+PANT_MAX <- 2 # before was 2
 PANT_MULT <- 0 
 AK1 <- 0.9
 AK1_MAX<- 2.8
 AK1_INC<- 0.1
 ABSSB = 0.9 # solar absorptivity of substrate (fractional, 0-1)           # (CHECK THIS)
-
-
 
 ###!!!!#### here is the physiological element because it needs the TAs
 #Also check setting this based on observed relationship in GGs
@@ -224,7 +223,7 @@ mt_comp <- comp %>% ggplot(aes(x = air_t, y = met_rate, col = source))+
         axis.text = element_text(size = 12, colour = "black"),
         legend.text = element_text(size = 12),
         legend.title = element_text(size = 14),
-        title = element_text(size = 20),
+        title = element_text(size = 14),
         legend.position = "none")#+facet_wrap(~spp)
 
 
@@ -268,4 +267,3 @@ mv_comp <- comp %>% ggplot(aes(x = air_t, y = mv, col = source))+
 out <- (mt_comp + ewl_comp) / (bt_comp + mv_comp)
 out
 #ggsave(filename = "1_2_1.png", path = "/Users/alejandrofp/Library/CloudStorage/OneDrive-JamesCookUniversity/PhD - projects/Ringtail - Mechanistic model - Wet Tropics/Ringtail_WT_Mechanistic_Model//Results/metabolic_chamber_results/custom_endoR_pven_no_full_thermoreg_seq")
-
