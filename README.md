@@ -102,13 +102,13 @@ This folder contains the dataset in ".csv" format for R.
   - "_RespRate hz_" respiration rate. Multiply by 100 to get breaths/min?.
   - "_TidalVolume ml_".
   - "_MinuteVolume ml/min".
-  - "_RECoeff_" ??
+  - "_RECoeff_"
   - "_Tb model_" predicted body temperature in deg C.
-  - "_RR_model_" predicted respiration rate??.
-  - "_TV model_" predicted tidal volume??.
-  - "_EWL model_" predicted evaporative water loss??.
-  - "_MV model_" predicted minute volume??.
-  - "_RR cubic model_" ??.
+  - "_RR_model_" predicted respiration rate.
+  - "_TV model_" predicted tidal volume.
+  - "_EWL model_" predicted evaporative water loss.
+  - "_MV model_" predicted minute volume.
+  - "_RR cubic model_"
 
 ## Folder - **Scripts**
 This folder contains the R scripts created for the different analyses, tests, and simulations.
